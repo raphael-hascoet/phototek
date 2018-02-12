@@ -27,6 +27,14 @@ $(function () {
         }
     });
 
+    $('.photo').click(function (e) {
+        if(e.target.src != undefined) {
+            var images = $('#apercu, #original');
+            images.find('img').remove();
+            $(' <img src="' + e.target.src + '"> ').prependTo(images);
+        }
+    });
+
     $('#contrasteSlider').on("input", function () {
         $('#contrasteVal').val(this.value);
     });
