@@ -46,7 +46,7 @@ $(document).ready(function() {
 
                 function affHTML(url) {
                     toggleAff();
-                    $('.canvas_container').load(url, function() {
+                    $('.canvas_container').load("canvas/"+url, function() {
                         $("#quit").click(function() {
                             toggleAff();
                         });
