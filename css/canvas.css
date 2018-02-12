@@ -1,0 +1,12 @@
+
+.canvas_button {
+	margin: 10px;
+}
+
+.canvas_drop {
+    width: 350px;
+    height: 70px;
+    padding: 10px;
+    border: 1px solid #aaaaaa;
+    margin: auto;
+}
