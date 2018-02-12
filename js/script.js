@@ -6,4 +6,42 @@ $(function () {
     $('.photo').each(function(index) {
         $(' <img src="images\\' + images[index] + '"> ').appendTo(this);
     });
+
+    $('#arrow-right').click(function () {
+        if(start + 5 < images.length) {
+            start++;
+            $('.photo img').remove();
+            $('.photo').each(function (index) {
+                $(' <img src="images\\' + images[index+start] + '"> ').appendTo(this);
+            });
+        }
+    });
+
+    $('#arrow-left').click(function () {
+        if(start > 0) {
+            start--;
+            $('.photo img').remove();
+            $('.photo').each(function (index) {
+                $(' <img src="images\\' + images[index+start] + '"> ').appendTo(this);
+            });
+        }
+    });
+
+    $('#contrasteSlider').on("input", function () {
+        $('#contrasteVal').val(this.value);
+    });
+
+    $('#contrasteVal').on("keyup", function () {
+        if(!isNaN(this.value)){
+            var val;
+            if(+this.value < 0){
+                val = 0;
+            } else if(+this.value >= 100){
+                val = 100;
+            } else {
+                val = +this.value;
+            }
+            $('#contrasteSlider').val(val);
+        }
+    });
 });
