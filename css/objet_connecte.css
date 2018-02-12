@@ -21,7 +21,7 @@ img {
 /* Bloc du centre de la page */
 #bloc_centre {
     background-color: white;
-    min-height: 600px;
+    /*min-height: 600px;*/
     margin-top: 66px;
 }
 
@@ -75,7 +75,7 @@ p {
 
 /** En-tete  **/
 header {
-    width: 100%;
+    width: 100% !important;
     height: 66px;
     background-color: #333;
     position: fixed;
@@ -91,24 +91,29 @@ header>div>p {
 
 /** Bordure (barre latérale gauche) **/
 
-#bordure {
+.bordure {
     margin-top: 100px;
 }
 
 /* Texte de la bordure */
-#bordure div p:first-child {
+.bordure div p:first-child {
     font-weight: 900;
 }
 
 /* Liens de la bordure */
-#bordure a:hover {
+.bordure a:hover {
     font-weight: bold;
     color: #337ab7;
 }
 
 /* Liens visités de la bordure */
-#bordure a:visited {
+.bordure a:visited {
     color: #337ab7;
+}
+
+#outils{
+    width: 80%;
+    margin-bottom: 10px;
 }
 
 
@@ -182,7 +187,10 @@ nav:nth-child(2) {
 footer {
     background-color: #555;
     color: white;
-    padding: 15px;
+    padding: 5px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 
 /* On small screens, set height to 'auto' for sidenav and grid */
@@ -195,3 +203,42 @@ footer {
 }
 
 
+
+
+
+.slidecontainer {
+    width: 100%; /* Width of the outside container */
+    margin-bottom: 10px;
+}
+
+.testVal {
+    width: 20%;
+}
+
+#original {
+    border-right: 1px solid #8c8b8b;
+}
+
+#photos-foot div{
+    display: inline;
+    padding: 5px !important;
+    vertical-align: middle;
+}
+
+#generated-photos div{
+    border-left: 1px solid #8c8b8b;
+}
+
+#photos-foot img{
+    width: auto;
+    max-height: 100px;
+}
+
+.arrow{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.arrow img{
+    width: 50% !important;
+}

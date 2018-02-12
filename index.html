@@ -6,18 +6,17 @@
         <meta name="author" content="P201701"/>
         <meta name="description" content="Les photos subliment votre vie.."/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" type="images/png" href="images/icone.png"/> <!-- Favicon -->
+        <link rel="icon" type="images/png" href="images/Logo%20reduc.png"/> <!-- Favicon -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.css"/> <!-- Inclusion de la feuille de style du framework Bootstrap -->
-        <link rel="stylesheet" type="text/css" href="css/phototek.css"/> <!-- Inclusion de la feuille de style -->
-        <link rel="stylesheet" type="text/css" href="css/canvas.css"/>
+        <link rel="stylesheet" type="text/css" href="css/objet_connecte.css"/> <!-- Inclusion de la feuille de style -->
     </head>
 
     <body id="haut_de_page">
 
         <header class="container hidden-xs"> <!-- Menu disponible pour toutes les versions SAUF MOBILE -->
-            <a class="col-lg-2 icone" href="index.html"><img src="images/icone.png" title="Logo phototek" alt="phototek" width=60px/></a>
+            <a class="col-lg-2" href="index.html"><img src="images/Logo.png" title="Logo objets connectés" alt="Logo objets connectés" width="796" height="345"/></a>
             
             <div class="col-lg-9">
                 <p>Bienvenue sur phototek</p>
@@ -29,47 +28,36 @@
             <ul class="dropdown-menu">
                 <li><a href="index.html">Gestion des dossiers</a></li>
                 <li class="divider"></li>
-                <li><a href="html/">Gestion des albums</a></li>
-                <li class="divider"></li>
-                <li><a href="html/">Mon compte</a></li>
-                <li class="divider"></li>
-                <li><a href="html/">Déconnexion</a></li>
+                <li><a href="html/opportunites.html">Gestion des albums</a></li> 
             </ul>
         </header>
 
         <nav class="container visible-xs"> <!-- Menu disponible uniquement pour VERSION MOBILE -->
             <div>
-                <a href="index.html"><img class="col-xs-3" src="images/icone.png" title="Logo phototek" alt="Logo phototek" width=60px/></a>
+                <a href="index.html"><img class="col-xs-3" src="images/Logo%20reduc.png" title="Logo objets connectés" alt="Logo objets connectés" width="218" height="247"/></a>
             </div>
-            
             <div class="col-xs-offset-1 col-xs-6">
-                <p>Bienvenue sur phototek</p>
             </div>
-            
             <a data-toggle="dropdown" class="col-xs-2"> <!-- Menu déroulant -->
                 <img id="menu-mobile" src="images/mobile-menu.png" alt="Menu" title="Menu" width="50" height="60"/>
             </a>
             <ul class="dropdown-menu">
                 <li><a href="index.html">Gestion des dossiers</a></li>
                 <li class="divider"></li>
-                <li><a href="html/">Gestion des albums</a></li>
-                <li class="divider"></li>
-                <li><a href="html/">Mon compte</a></li>
-                <li class="divider"></li>
-                <li><a href="html/">Déconnexion</a></li>
+                <li><a href="html/opportunites.html">Gestion des albums</a></li> 
             </ul>
         </nav>
 
         <div class="container-fluid text-center">    
             <div class="row content">
-                <div class="hidden-xs hidden-sm col-sm-2 col_gauche" id="bordure"> <!-- Barre de gauche disponible uniquement pour la VERSION BUREAU -->
+                <div class="hidden-xs hidden-sm col-sm-2 bordure"> <!-- Liste des articles disponible uniquement pour la VERSION BUREAU -->
                     <div>
                         <p>Logo Phototek</p>
                     </div>
                     <hr/>
                     <div>
-                        <p><a href="html/">Gestion des dossiers</a></p>
-                        <p><a href="html/">Gestion des albums</a></p>
+                        <p><a href="html/opportunites.html#opportunites">Gestion des dossiers</a></p>
+                        <p><a href="html/opportunites.html#marche_obj">Gestion des albums</a></p>
                     </div>
                     <br/>
                     <hr/>
@@ -83,167 +71,76 @@
 
                 <div class="col-sm-8 text-left" id="bloc_centre"> <!-- Bloc principal de la page -->
                     <section>
-                        <h2>Mes dossiers</h2>   
+                        <h2>Modification d'image</h2>
                         <hr/>
-                        <article id="dossier">
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>Vacances 2016</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>Lycée</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>Saint-Malo 2016</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>Noel 2016</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>Vacances 2017</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>IUT</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>JPO</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/aurore.jpg">
-                                </div>
-                                    <figcaption>Aurore</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/biquette.jpg">
-                                </div>
-                                <figcaption>Chevre</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/jsp.jpg">
-                                </div>
-                                <figcaption>Paysage</figcaptionid>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/tigre.jpg">
-                                </div>
-                                <figcaption>Tigre</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>JPO</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>JPO</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>JPO</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>JPO</figcaption>
-                            </figure>
-                            
-                            <figure>
-                                <div class="img_doss">
-                                    <img src="images/index.png">
-                                </div>
-                                <figcaption>JPO</figcaption>
-                            </figure>        
-
+                        <article class="container-fluid">
+                            <div class="row">
+                                <figure class="col-sm-6" id="original">
+                                    <img src="images/photo.jpeg">
+                                    <figcaption>Original</figcaption>
+                                </figure>
+                                <figure class="col-sm-6" id="apercu">
+                                    <img src="images/photo.jpeg">
+                                    <figcaption>Apercu</figcaption>
+                                </figure>
+                            </div>
                         </article>
                         <br/>
                     </section>
                 </div>
-                
-                
-                
-                <div class="hidden-xs hidden-sm col-sm-2 col_droite" id="bordure"> <!-- Barre de droite disponible uniquement pour la VERSION BUREAU -->
-                    <div id="ajoutPhoto">
-                        <img class="img" src="images/Boutons/ajt.jpg">
-                        <p>Ajouter Dossier</p>
-                    </div>
-                    <hr/>
+
+                <div class="col-sm-2 bordure" id="bord-droite">
                     <div>
-                        <img src="images/Boutons/mdf.png">
-                        <p>Modifier Dossier</p>
-                        
+                        <p>Outils</p>
                     </div>
-                    <hr/>
-                    <div id="supprimerPhoto">
-                        <img src="images/Boutons/supr.jpeg">
-                        <p>Supprimer dossier</p>
+                    <form>
+                        <select name="outils" id="outils" size="4">
+                            <option value="contraste">Contraste</option>
+                            <option value="saturation">Saturation</option>
+                        <option value="taille">Taille</option>
+                        </select>
+                        <br />
+                        <input type="submit" value="Valider">
+                    </form>
+                    <hr />
+                    <div>
+                        <p>Contraste</p>
+                        <form>
+                            <div class="slidecontainer">
+                                <input type="range" min="1" max="100" value="50" class="slider" id="contrasteSlider">
+                            </div>
+                            <input type="text" name="contraste" value="50" class="testVal">
+                            <input type="submit" value="OK">
+                        </form>
+
                     </div>
-                     <hr/>
-                </div>  
+                </div>
                 
             </div>
         </div>
 
-        
-        
-        <!-- Version BUREAU -->
-        <footer class="hidden-xs pied-de-page"> <!-- Pied de page pour toutes les versions SAUF MOBILE -->
-                        
-        </footer>
-        
-        <!-- Version MOBILE -->
-        <footer class="hidden-lg pied-de-page"> <!-- Pied de page pour version MOBILE -->
-                        
-        </footer>
-        <div class="canvas">
-            <div class="canvas_container">
+        <footer class="container-fluid text-center">
+            <div class="row" id="photos-foot">
+                <div class="col-sm-1 arrow" id="arrow-left">
+                    <img src="images/arrow-left.png">
+                </div>
+                <div class="col-sm-2 photo"></div>
+                <div class="col-sm-2 photo"></div>
+                <div class="col-sm-2 photo"></div>
+                <div class="col-sm-2 photo"></div>
+                <div class="col-sm-2 photo"></div>
+                <!--<div class="col-sm-2">
+                    <img src="images/photo.jpeg">
+                </div>-->
+                <div class="col-sm-1 arrow-right">
+                    <img src="images/arrow-right.png">
+                </div>
             </div>
-        </div>
+            <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+        </footer>
 
         <!-- Placement du javascript ici pour ne pas bloquer le chargement de la page -->
-        <script type="text/javascript" src="js/script.js"></script>  <!-- Script permettant un défilement animé pour remonter en haut de page -->
+        <script type="text/javascript" src="lib/jquery.js"></script>
+        <script type="text/javascript"  src="js/script.js"></script>
     </body>
 </html>
