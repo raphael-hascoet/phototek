@@ -94,7 +94,7 @@ function uploadData(formdata) {
         processData: false,
         dataType: 'json',
         success: function (response) {
-            alert("Success\n" + response);
+            alert("Success\n" + JSON.stringify(response));
             show(response);
         },
 
@@ -105,6 +105,8 @@ function uploadData(formdata) {
 }
 
 function show(img) {
-    //$("#image_upload").append()
+    var table = $("#upload-file table");
+    if(table)
+    table.append('<img src="upload/' + img.name + '">');
 }
                 

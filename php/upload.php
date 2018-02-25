@@ -22,4 +22,4 @@ if (move_uploaded_file($_FILES['file']['tmp_name'], $location)) {
     $return_arr = array("name" => $filename, "size" => $filesize, "src" => $src);
 }
 
-echo print_r($return_arr);
+echo json_encode($return_arr);
