@@ -69,10 +69,14 @@ $(document).ready(function () {
                     e.stopPropagation();
                     e.preventDefault();
 
-                    var file = e.originalEvent.dataTransfer.files;
+                    var files = e.originalEvent.dataTransfer.files;
                     var fd = new FormData();
+                    var filesArr = [];
 
-                    fd.append('file', file[0]);
+                    for (var i = 0; i < files.length; i++) {
+                        fd.append(files[i].name, files[i]);
+                    }
+                    //fd.append('files', filesArr);
 
                     uploadData(fd);
                 });
@@ -95,7 +99,9 @@ function uploadData(formdata) {
         dataType: 'json',
         success: function (response) {
             alert("Success\n" + JSON.stringify(response));
-            show(response);
+            response.forEach(function (img) {
+                show(img);
+            });
         },
 
         error: function (context, text, error) {

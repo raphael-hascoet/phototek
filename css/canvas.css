@@ -4,8 +4,8 @@
 }
 
 .upload-area {
-    width: 350px;
-    height: 70px;
+    width: 770px;
+    min-height: 150px;
     padding: 10px;
     border: 1px solid #aaaaaa;
     margin: auto;
@@ -15,6 +15,12 @@
     cursor: pointer;
 }
 
-#upload-file{
+#upload-file figure {
+    width: 150px;
+}
 
+#upload-file img{
+    margin: auto;
+    max-height: 150px;
+    padding: 10px;
 }
