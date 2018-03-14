@@ -24,15 +24,15 @@ $(document).ready(function () {
     });
 
     $('#ajoutPhoto').click(function () {
-        affHTML("ajoute.html");
+        affCanvas("ajoute.html");
     });
 
     $('#supprimerPhoto').click(function () {
-        affHTML("supprimer.html");
+        affCanvas("supprimer.html");
     });
 
     $('#share').click(function () {
-        affHTML("share.html");
+        affCanvas("share.html");
     });
 
 
@@ -53,7 +53,11 @@ $(document).ready(function () {
         }
     }
 
-    function affHTML(url) {
+    function affPage(url) {
+
+    }
+
+    function affCanvas(url) {
         toggleAff();
         $('.canvas_container').load("canvas/" + url, function () {
             if(url === "ajoute.html"){

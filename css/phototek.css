@@ -4,8 +4,8 @@
 /*****         Style ajouté       *****/
 
 html {
-   height: 100%;
-  box-sizing: border-box;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 body {
@@ -26,16 +26,16 @@ img {
 /* Bloc du centre de la page */
 #bloc_centre {
     background-color: white;
-    min-height: 600px;
-    margin-top: 66px;
     height: 100%;
-    overflow: scroll;
+    margin-top: 66px;
+    overflow-y: scroll;
 }
+
 
 /* Liens visités du bloc */
 #bloc_centre a:visited {
     color: #337ab7;
-}  
+}
 
 /** Titres **/
 
@@ -58,7 +58,7 @@ h2 {
 
 /* Titre de niveau 3 */
 h3 {
-    font-family: "Trebuchet MS", "Sans serif"; 
+    font-family: "Trebuchet MS", "Sans serif";
     font-size: 2em;
     color: #0D5E97;
     text-indent: 50px;
@@ -81,8 +81,9 @@ p {
 /*** Version BUREAU ***/
 
 /** En-tete  **/
+
 header {
-    width: 100%;
+    width: 100% !important;
     height: 66px;
     background-color: #333;
     position: fixed;
@@ -95,32 +96,34 @@ header>div>p {
     padding-top: 20px;
 }
 
-/** Barre latérale **/
-.col_gauche,
-.col_doite {
-    position: sticky;
-}
+
 
 /** Bordure (barre latérale gauche) **/
 
-#bordure {
+.bordure {
+    position: sticky;
     margin-top: 100px;
 }
 
 /* Texte de la bordure */
-#bordure div p:first-child {
+.bordure div p:first-child {
     font-weight: 900;
 }
 
 /* Liens de la bordure */
-#bordure a:hover {
+.bordure a:hover {
     font-weight: bold;
     color: #337ab7;
 }
 
 /* Liens visités de la bordure */
-#bordure a:visited {
+.bordure a:visited {
     color: #337ab7;
+}
+
+#outils{
+    width: 80%;
+    margin-bottom: 10px;
 }
 
 /* Affichage des dossiers */
@@ -149,7 +152,7 @@ header>div>p {
 
 /** Colonne de droite **/
 
-.col_droite img {
+#col_droite img {
     width: 30px;
     background-color: black;
     height: auto;
@@ -197,7 +200,7 @@ nav:nth-child(2) {
     margin-top: 6px;
 }
 
-/* Fleche pour remonter en haut de la page */ 
+/* Fleche pour remonter en haut de la page */
 #fleche {
     position: fixed;
     top: 485px;
@@ -207,7 +210,7 @@ nav:nth-child(2) {
 /*****         Style par défaut       *****/
 
 /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
-.row.content {height: 500px}
+.row.content {height: 50vh}
 
 /* Set gray background color and 100% height */
 .sidenav {
@@ -218,16 +221,15 @@ nav:nth-child(2) {
 
 /* Set black background color, white text and some padding */
 footer {
-    position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 1rem;
-  text-align: center;
     background-color: #555;
     color: white;
-    padding: 15px;
+    padding: 5px;
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
 }
+
 
 /* On small screens, set height to 'auto' for sidenav and grid */
 @media screen and (max-width: 767px) {
@@ -235,7 +237,7 @@ footer {
         height: auto;
         padding: 15px;
     }
-    .row.content {height: auto;} 
+    .row.content {height: auto;}
 }
 
 .canvas {
@@ -256,3 +258,50 @@ footer {
     text-align: center;
     padding: 0.5em;
 }
+
+
+
+
+.slidecontainer {
+    width: 100%; /* Width of the outside container */
+    margin-bottom: 10px;
+}
+
+.value {
+    width: 20%;
+}
+
+#original {
+    border-right: 1px solid #8c8b8b;
+}
+
+#photos-foot div{
+    display: inline;
+    padding: 5px !important;
+    vertical-align: middle;
+}
+
+#generated-photos div{
+    border-left: 1px solid #8c8b8b;
+}
+
+#photos-foot img{
+    width: auto;
+    max-height: 100px;
+}
+
+.arrow{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    transition: box-shadow .3s;
+}
+
+.arrow:hover {
+    box-shadow: 0 0 11px 1px rgba(44,33,33,.2);
+}
+
+
+.arrow img {
+    width: 50% !important;
+}
+

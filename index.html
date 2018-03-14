@@ -7,8 +7,8 @@
         <meta name="description" content="Les photos subliment votre vie.."/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" type="images/png" href="images/icone.png"/> <!-- Favicon -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="lib/jquery.js"></script>
+        <script src="lib/bootstrap.js"></script>
         <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.css"/> <!-- Inclusion de la feuille de style du framework Bootstrap -->
         <link rel="stylesheet" type="text/css" href="css/phototek.css"/> <!-- Inclusion de la feuille de style -->
         <link rel="stylesheet" type="text/css" href="css/canvas.css"/>
@@ -62,7 +62,7 @@
 
         <div class="container-fluid text-center">    
             <div class="row content">
-                <div class="hidden-xs hidden-sm col-sm-2 col_gauche" id="bordure"> <!-- Barre de gauche disponible uniquement pour la VERSION BUREAU -->
+                <div class="hidden-xs hidden-sm col-sm-2 bordure" id="col_gauche"> <!-- Barre de gauche disponible uniquement pour la VERSION BUREAU -->
                     <div>
                         <p>Logo Phototek</p>
                     </div>
@@ -205,7 +205,7 @@
                 
                 
                 
-                <div class="hidden-xs hidden-sm col-sm-2 col_droite" id="bordure"> <!-- Barre de droite disponible uniquement pour la VERSION BUREAU -->
+                <div class="hidden-xs hidden-sm col-sm-2 bordure" id="col_droite"> <!-- Barre de droite disponible uniquement pour la VERSION BUREAU -->
                     <div id="ajoutPhoto">
                         <img class="img" src="images/Boutons/ajt.jpg">
                         <p>Ajouter Dossier</p>
