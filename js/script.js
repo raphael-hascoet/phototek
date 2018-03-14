@@ -2,6 +2,7 @@
 
 
 $(document).ready(function () {
+    rmTmp();
 
     $('html').on('dragover', function (e) {
         e.preventDefault();
@@ -41,6 +42,7 @@ $(document).ready(function () {
     });
 
     function toggleAff() {
+        rmTmp();
         if ($('.canvas').css('display') == 'block') {
 
             $('.canvas').css('display', 'none');
@@ -55,6 +57,7 @@ $(document).ready(function () {
         toggleAff();
         $('.canvas_container').load("canvas/" + url, function () {
             if(url === "ajoute.html"){
+
                 $('.upload-area').on('dragenter', function (e) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -71,14 +74,22 @@ $(document).ready(function () {
 
                     var files = e.originalEvent.dataTransfer.files;
                     var fd = new FormData();
-                    var filesArr = [];
 
                     for (var i = 0; i < files.length; i++) {
                         fd.append(files[i].name, files[i]);
                     }
-                    //fd.append('files', filesArr);
 
-                    uploadData(fd);
+                    uploadTmp(fd);
+                });
+
+                $('#envoi').on('click', function (e) {
+                    e.preventDefault();
+                    var folder = $('#folder');
+                    if(/^[a-zA-Z][a-zA-Z\s]*$/.test(folder.val())){
+                        uploadData(folder.val());
+                    } else {
+                        $("#error").html("Nom de fichier invalide")
+                    }
                 });
 
             }
@@ -87,32 +98,47 @@ $(document).ready(function () {
             });
         });
     }
+
+    function uploadTmp(formdata) {
+        $.ajax({
+            url: 'php/index.php/uploadtmp',
+            type: 'post',
+            data: formdata,
+            contentType: false,
+            processData: false,
+            dataType: 'json',
+            success: function (response) {
+                alert("Success\n" + JSON.stringify(response));
+                response.forEach(function (img) {
+                    show(img);
+                })
+            },
+
+            error: function (context, text, error) {
+                alert("Failure\n" + context.responseText + "\n" + text + "\n" + error);
+            }
+        });
+    }
+    function uploadData(folder) {
+        alert(folder);
+        $.post('php/index.php/upload/' + folder, function (e) {
+            toggleAff();
+        });
+    }
+
+    function rmTmp() {
+        $.post('php/index.php/rmtmp');
+    }
+
+    function show(img) {
+        var table = $("#upload-file table");
+        if(table.last().find("td").length % 5 == 0){
+            table.append('<tr></tr>');
+        }
+        table.last().append("<td> <figure> <img src='tmp/" + img.name + "'> <figcaption>" + img.name + "</figcaption> </figure> </td>");
+    }
+
 });
 
-function uploadData(formdata) {
-    $.ajax({
-        url: 'php/upload.php',
-        type: 'post',
-        data: formdata,
-        contentType: false,
-        processData: false,
-        dataType: 'json',
-        success: function (response) {
-            alert("Success\n" + JSON.stringify(response));
-            response.forEach(function (img) {
-                show(img);
-            });
-        },
 
-        error: function (context, text, error) {
-            alert("Failure\n" + context.responseText + "\n" + text + "\n" + error);
-        }
-    });
-}
 
-function show(img) {
-    var table = $("#upload-file table");
-    if(table)
-    table.append('<img src="upload/' + img.name + '">');
-}
-                
