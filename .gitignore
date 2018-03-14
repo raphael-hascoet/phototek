@@ -3,3 +3,4 @@ phpmyadmin/
 upload/
 tmp/
 vendor/
+.idea
