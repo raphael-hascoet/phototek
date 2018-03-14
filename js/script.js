@@ -4,6 +4,8 @@
 $(document).ready(function () {
     rmTmp();
 
+    affPage("dossiers.html");
+
     $('html').on('dragover', function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -54,13 +56,20 @@ $(document).ready(function () {
     }
 
     function affPage(url) {
+        $('#main').load("html/" + url, function () {
+            if (url === "dossiers.html") {
 
+            }
+            if (url === "modif.html") {
+
+            }
+        });
     }
 
     function affCanvas(url) {
         toggleAff();
         $('.canvas_container').load("canvas/" + url, function () {
-            if(url === "ajoute.html"){
+            if (url === "ajoute.html") {
 
                 $('.upload-area').on('dragenter', function (e) {
                     e.stopPropagation();
@@ -89,7 +98,7 @@ $(document).ready(function () {
                 $('#envoi').on('click', function (e) {
                     e.preventDefault();
                     var folder = $('#folder');
-                    if(/^[a-zA-Z][a-zA-Z\s]*$/.test(folder.val())){
+                    if (/^[a-zA-Z][a-zA-Z\s]*$/.test(folder.val())) {
                         uploadData(folder.val());
                     } else {
                         $("#error").html("Nom de fichier invalide")
@@ -123,6 +132,7 @@ $(document).ready(function () {
             }
         });
     }
+
     function uploadData(folder) {
         alert(folder);
         $.post('php/index.php/upload/' + folder, function (e) {
@@ -136,7 +146,7 @@ $(document).ready(function () {
 
     function show(img) {
         var table = $("#upload-file table");
-        if(table.last().find("td").length % 5 == 0){
+        if (table.last().find("td").length % 5 == 0) {
             table.append('<tr></tr>');
         }
         table.last().append("<td> <figure> <img src='tmp/" + img.name + "'> <figcaption>" + img.name + "</figcaption> </figure> </td>");
