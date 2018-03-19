@@ -291,3 +291,6 @@ footer {
     width: 50% !important;
 }
 
+#error {
+    color : red;
+}

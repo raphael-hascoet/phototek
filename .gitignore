@@ -1,5 +1,9 @@
 .htaccess
 phpmyadmin/
-upload/*
-tmp/*
 .idea
+php/config.php
+
+upload/*
+!upload/.gitkeep
+tmp/*
+!tmp/.gitkeep

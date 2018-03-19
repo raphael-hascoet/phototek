@@ -9,8 +9,6 @@ foreach ($_FILES as $f) {
 
     $location = "../tmp/" . $filename;
 
-    $return_arr = array();
-
     if (move_uploaded_file($f['tmp_name'], $location)) {
         $src = "default.png";
 
