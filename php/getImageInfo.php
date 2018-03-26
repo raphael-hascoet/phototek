@@ -1,32 +1,16 @@
 <?php
-	function connectionBD(){
-		try {
-			$user = "info201701";
-			$pass = "pj01an2017";
-			$db = new PDO("mysql:dbname=p201701;host=129.20.239.194", $user, $pass);
-		} catch (PDOException $e){
-			$db = null;
-			print ("Erreur !: " . $e->getMessage());
-			die();
-		}
-		return $db;
-	}
-	
-	$image = [];
-	
-	function getInfoPhoto($db, $Id){
-		$info = [];
-		$stmt = $db->prepare('SELECT nom, mime, id_dossier FROM p201701.photos WHERE id = ?');
+
+	require 'config.php';
+
+	function getInfoPhoto($Id){
+		$stmt = $GLOBALS['db']->prepare('SELECT nom, mime, id_dossier FROM ' . $GLOBALS['schema'] . '.photos WHERE id = ?');
 		$stmt->execute([$Id]);
-		foreach($stmt as $donnee){
-			$info.append($donnee);
-		}
-		return $info;
+		return $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 	
-	function getLabelTag($db, $Id){
+	function getLabelTag($Id){
 		$label = [];
-		$stmt = $db->query('SELECT label FROM p201701.tags WHERE id = ?');
+		$stmt = $GLOBALS['db']->query('SELECT label FROM ' . $GLOBALS['schema'] . '.tags WHERE id = ?');
 		$stmt->execute([$Id]);
 		foreach($stmt as $donnee){
 			$label.append($donnee);
@@ -34,17 +18,17 @@
 		return $label;
 	}
 	
-	function getTagsPhoto($db, $Id){
+	function getTagsPhoto($Id){
 		$Tag = [];
-		$stmt = $db->query('SELECT id_tag p201701.photos_tags WHERE id_photo = ?');
+		$stmt = $GLOBALS['db']->query('SELECT id_tag FROM ' . $GLOBALS['schema'] . '.photos_tags WHERE id_photo = ?');
 		$stmt->execute([$Id]);
-		$Tag.getLabel($db, $stmt);
+		$Tag.getLabel($GLOBALS['db'], $stmt);
 		return $Tag;
 	}
 	
-	function getExifPhoto($db, $Id){
+	function getExifPhoto($Id){
 		$exif = [];
-		$stmt = $db->prepare('SELECT taille, date_dern, date, resolution, qualite, format, auteur, appareil, coordonnee FROM p201701.exif WHERE id_photo = ?');
+		$stmt = $GLOBALS['db']->prepare('SELECT taille, date_dern, date, resolution, qualite, format, auteur, appareil, coordonnee FROM ' . $GLOBALS['schema'] . '.exif WHERE id_photo = ?');
 		$stmt->execute([$Id]);
 		foreach($stmt as $donnee){
 			$exif.append($donnee);
@@ -53,9 +37,9 @@
 	}
 	
 	/*
-	function getPersonnePhoto($db, $Id){
+	function getPersonnePhoto($GLOBALS['db'], $Id){
 	* $pers = [];
-		$stmt = $db->query('SELECT personne ??? WHERE id_photo = ?');
+		$stmt = $GLOBALS['db']->query('SELECT personne ??? WHERE id_photo = ?');
 		$stmt->execute([$Id]);
 		foreach($stmt as $donnee){
 			$pers.append($donnee);
@@ -64,11 +48,11 @@
 	}
 	*/
 	
-	function getAllPhoto($db, $Id){
+	function getAllPhoto($Id){
 		$all = [];
-		$all.append(getInfoPhoto($db, $Id));
-		$all.append(getTagsPhoto($db, $Id));
-		$all.append(getExifPhoto($db, $Id));
+		$all.append(getInfoPhoto($GLOBALS['db'], $Id));
+		$all.append(getTagsPhoto($GLOBALS['db'], $Id));
+		$all.append(getExifPhoto($GLOBALS['db'], $Id));
 		return $all;
 	 }
 	

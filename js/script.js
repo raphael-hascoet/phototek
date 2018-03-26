@@ -4,7 +4,7 @@
 $(document).ready(function () {
     rmTmp();
 
-    affPage("modif.html");
+    affPage("modif.html/9");
 
     $('html').on('dragover', function (e) {
         e.preventDefault();
@@ -38,7 +38,7 @@ $(document).ready(function () {
     }
 
     function affPage(url) {
-        $('#main').load("html/" + url, function () {
+        $('#main').load("html/" + url.split('/')[0], function () {
             if (url === "dossiers.html") {
 
                 $('.lien_dossiers').click(function () {
@@ -62,21 +62,30 @@ $(document).ready(function () {
                     $(this).css("background-color", "#ffb7b7");
                 });
             }
-            if (url === "modif.html") {
-                var images = ["photo.jpeg", "photo2.jpg", "photo3.jpg", "photo4.jpg", "photo5.jpg", "photo6.jpg", "photo7.jpg", "photo8.jpg"];
+            if (url.split('/')[0] === "modif.html") {
+                var idPhoto = url.split('/')[1];
+
+                //console.log(idPhoto);
+                var images = [];
+
+                $.post('php/index.php/imagesfolder/' + idPhoto, function (e) {
+                    images = JSON.parse(e);
+
+                    $('.photo').each(function(index) {
+                        $('<img src="upload/' + images[index] + '">').appendTo(this);
+                    });
+                });
+
+                //var images = ["photo.jpeg", "photo2.jpg", "photo3.jpg", "photo4.jpg", "photo5.jpg", "photo6.jpg", "photo7.jpg", "photo8.jpg"];
 
                 var start = 0;
-
-                $('.photo').each(function(index) {
-                    $(' <img src="images\\' + images[index] + '"> ').appendTo(this);
-                });
 
                 $('#arrow-right').click(function () {
                     if(start + 5 < images.length) {
                         start++;
                         $('.photo img').remove();
                         $('.photo').each(function (index) {
-                            $(' <img src="images\\' + images[index+start] + '"> ').appendTo(this);
+                            $(' <img src="upload/' + images[index+start] + '"> ').appendTo(this);
                         });
                     }
                 });
@@ -86,7 +95,7 @@ $(document).ready(function () {
                         start--;
                         $('.photo img').remove();
                         $('.photo').each(function (index) {
-                            $(' <img src="images\\' + images[index+start] + '"> ').appendTo(this);
+                            $(' <img src="upload/' + images[index+start] + '"> ').appendTo(this);
                         });
                     }
                 });
@@ -97,6 +106,10 @@ $(document).ready(function () {
                         images.find('img').remove();
                         $(' <img src="' + e.target.src + '"> ').prependTo(images);
                     }
+                });
+
+                $('#formoutils').submit(function (e) {
+                    return false;
                 });
 
                 $('#contrasteSlider').on("input", function () {
