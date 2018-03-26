@@ -294,3 +294,7 @@ footer {
 #error {
     color : red;
 }
+
+.selected_footer {
+    background-color: #888;
+}

@@ -4,7 +4,7 @@
 $(document).ready(function () {
     rmTmp();
 
-    affPage("modif.html/9");
+    affPage("modif.html/24");
 
     $('html').on('dragover', function (e) {
         e.preventDefault();
@@ -39,11 +39,13 @@ $(document).ready(function () {
 
     function affPage(url) {
         $('#main').load("html/" + url.split('/')[0], function () {
-            if (url === "dossiers.html") {
 
-                $('.lien_dossiers').click(function () {
-                    affPage('')
-                })
+            $('.lien_dossiers').click(function (e) {
+                e.preventDefault();
+                affPage('dossiers.html');
+            });
+
+            if (url === "dossiers.html") {
 
                 $('#ajoutPhoto').click(function () {
                     affCanvas("ajoute.html");
@@ -69,44 +71,64 @@ $(document).ready(function () {
                 var images = [];
 
                 $.post('php/index.php/imagesfolder/' + idPhoto, function (e) {
-                    images = JSON.parse(e);
+                    var result = JSON.parse(e);
+                    var images = result['photos'];
+
+                    $('#original, #apercu').each(function () {
+                        $('<img src="upload/' + result['folder'] + '/' + idPhoto + '">').appendTo(this);
+                    });
 
                     $('.photo').each(function(index) {
-                        $('<img src="upload/' + images[index] + '">').appendTo(this);
+                        let img = images[index];
+                        $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
+                    });
+
+                    var selected = '#footer_' + idPhoto;
+
+                    $(selected).parent().addClass('selected_footer');
+                    console.log('#footer_' + idPhoto);
+
+                    var start = 0;
+
+                    $('#arrow-right').click(function () {
+                        if(start + 5 < images.length) {
+                            start++;
+                            $('.photo img').remove();
+                            $('.photo').each(function (index) {
+                                let img = images[index+start];
+                                $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
+                            });
+                            $('.selected_footer').removeClass('selected_footer');
+                            $(selected).parent().addClass('selected_footer');
+                        }
+                    });
+
+                    $('#arrow-left').click(function () {
+                        if(start > 0) {
+                            start--;
+                            $('.photo img').remove();
+                            $('.photo').each(function (index) {
+                                let img = images[index+start];
+                                $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this)
+                            });
+                            $('.selected_footer').removeClass('selected_footer');
+                            $(selected).parent().addClass('selected_footer');
+                        }
+                    });
+
+                    $('.photo').click(function (e) {
+                        if(e.target.src != undefined) {
+                            var images = $('#apercu, #original');
+                            images.find('img').remove();
+                            $(' <img src="' + e.target.src + '"> ').prependTo(images);
+                            $('.selected_footer').removeClass('selected_footer');
+                            $(e.target).parent().addClass('selected_footer');
+                            selected = '#' + e.target.id;
+                        }
                     });
                 });
 
                 //var images = ["photo.jpeg", "photo2.jpg", "photo3.jpg", "photo4.jpg", "photo5.jpg", "photo6.jpg", "photo7.jpg", "photo8.jpg"];
-
-                var start = 0;
-
-                $('#arrow-right').click(function () {
-                    if(start + 5 < images.length) {
-                        start++;
-                        $('.photo img').remove();
-                        $('.photo').each(function (index) {
-                            $(' <img src="upload/' + images[index+start] + '"> ').appendTo(this);
-                        });
-                    }
-                });
-
-                $('#arrow-left').click(function () {
-                    if(start > 0) {
-                        start--;
-                        $('.photo img').remove();
-                        $('.photo').each(function (index) {
-                            $(' <img src="upload/' + images[index+start] + '"> ').appendTo(this);
-                        });
-                    }
-                });
-
-                $('.photo').click(function (e) {
-                    if(e.target.src != undefined) {
-                        var images = $('#apercu, #original');
-                        images.find('img').remove();
-                        $(' <img src="' + e.target.src + '"> ').prependTo(images);
-                    }
-                });
 
                 $('#formoutils').submit(function (e) {
                     return false;

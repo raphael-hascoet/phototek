@@ -11,10 +11,10 @@ $photo = getInfoPhoto($photoId);
 
 $idImages = getPhotosInFolder($photo['id_dossier']);
 
-$urlImages = [];
+$urlImages['folder'] = $photo['id_dossier'];
 
 foreach ($idImages as $idImage){
-    $urlImages[] = $photo['id_dossier'] . "/" . $idImage . "." . getInfoPhoto($idImage)['mime'];
+    $urlImages['photos'][] = getInfoPhoto($idImage);
 }
 
 echo json_encode($urlImages);

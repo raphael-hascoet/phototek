@@ -3,7 +3,7 @@
 	require 'config.php';
 
 	function getInfoPhoto($Id){
-		$stmt = $GLOBALS['db']->prepare('SELECT nom, mime, id_dossier FROM ' . $GLOBALS['schema'] . '.photos WHERE id = ?');
+		$stmt = $GLOBALS['db']->prepare('SELECT id, nom, mime, id_dossier FROM ' . $GLOBALS['schema'] . '.photos WHERE id = ?');
 		$stmt->execute([$Id]);
 		return $stmt->fetch(PDO::FETCH_ASSOC);
 	}
