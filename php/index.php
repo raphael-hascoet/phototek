@@ -27,4 +27,8 @@ $app->post('/rmtmp', function (Request $request, Response $response, array $args
     include 'rmtmp.php';
 });
 
+$app->post('/imagesfolder/{id}', function (Request $request, Response $response, array $args) {
+    include 'imagesfolder.php';
+});
+
 $app->run();

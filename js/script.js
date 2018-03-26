@@ -4,7 +4,7 @@
 $(document).ready(function () {
     rmTmp();
 
-    affPage("modif.html");
+    affPage("modif.html/24");
 
     $('html').on('dragover', function (e) {
         e.preventDefault();
@@ -38,12 +38,14 @@ $(document).ready(function () {
     }
 
     function affPage(url) {
-        $('#main').load("html/" + url, function () {
-            if (url === "dossiers.html") {
+        $('#main').load("html/" + url.split('/')[0], function () {
 
-                $('.lien_dossiers').click(function () {
-                    affPage('')
-                })
+            $('.lien_dossiers').click(function (e) {
+                e.preventDefault();
+                affPage('dossiers.html');
+            });
+
+            if (url === "dossiers.html") {
 
                 $('#ajoutPhoto').click(function () {
                     affCanvas("ajoute.html");
@@ -62,41 +64,74 @@ $(document).ready(function () {
                     $(this).css("background-color", "#ffb7b7");
                 });
             }
-            if (url === "modif.html") {
-                var images = ["photo.jpeg", "photo2.jpg", "photo3.jpg", "photo4.jpg", "photo5.jpg", "photo6.jpg", "photo7.jpg", "photo8.jpg"];
+            if (url.split('/')[0] === "modif.html") {
+                var idPhoto = url.split('/')[1];
 
-                var start = 0;
+                //console.log(idPhoto);
+                var images = [];
 
-                $('.photo').each(function(index) {
-                    $(' <img src="images\\' + images[index] + '"> ').appendTo(this);
+                $.post('php/index.php/imagesfolder/' + idPhoto, function (e) {
+                    var result = JSON.parse(e);
+                    var images = result['photos'];
+
+                    $('#original, #apercu').each(function () {
+                        $('<img src="upload/' + result['folder'] + '/' + idPhoto + '">').appendTo(this);
+                    });
+
+                    $('.photo').each(function(index) {
+                        let img = images[index];
+                        $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
+                    });
+
+                    var selected = '#footer_' + idPhoto;
+
+                    $(selected).parent().addClass('selected_footer');
+                    console.log('#footer_' + idPhoto);
+
+                    var start = 0;
+
+                    $('#arrow-right').click(function () {
+                        if(start + 5 < images.length) {
+                            start++;
+                            $('.photo img').remove();
+                            $('.photo').each(function (index) {
+                                let img = images[index+start];
+                                $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
+                            });
+                            $('.selected_footer').removeClass('selected_footer');
+                            $(selected).parent().addClass('selected_footer');
+                        }
+                    });
+
+                    $('#arrow-left').click(function () {
+                        if(start > 0) {
+                            start--;
+                            $('.photo img').remove();
+                            $('.photo').each(function (index) {
+                                let img = images[index+start];
+                                $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this)
+                            });
+                            $('.selected_footer').removeClass('selected_footer');
+                            $(selected).parent().addClass('selected_footer');
+                        }
+                    });
+
+                    $('.photo').click(function (e) {
+                        if(e.target.src != undefined) {
+                            var images = $('#apercu, #original');
+                            images.find('img').remove();
+                            $(' <img src="' + e.target.src + '"> ').prependTo(images);
+                            $('.selected_footer').removeClass('selected_footer');
+                            $(e.target).parent().addClass('selected_footer');
+                            selected = '#' + e.target.id;
+                        }
+                    });
                 });
 
-                $('#arrow-right').click(function () {
-                    if(start + 5 < images.length) {
-                        start++;
-                        $('.photo img').remove();
-                        $('.photo').each(function (index) {
-                            $(' <img src="images\\' + images[index+start] + '"> ').appendTo(this);
-                        });
-                    }
-                });
+                //var images = ["photo.jpeg", "photo2.jpg", "photo3.jpg", "photo4.jpg", "photo5.jpg", "photo6.jpg", "photo7.jpg", "photo8.jpg"];
 
-                $('#arrow-left').click(function () {
-                    if(start > 0) {
-                        start--;
-                        $('.photo img').remove();
-                        $('.photo').each(function (index) {
-                            $(' <img src="images\\' + images[index+start] + '"> ').appendTo(this);
-                        });
-                    }
-                });
-
-                $('.photo').click(function (e) {
-                    if(e.target.src != undefined) {
-                        var images = $('#apercu, #original');
-                        images.find('img').remove();
-                        $(' <img src="' + e.target.src + '"> ').prependTo(images);
-                    }
+                $('#formoutils').submit(function (e) {
+                    return false;
                 });
 
                 $('#contrasteSlider').on("input", function () {

@@ -1,5 +1,7 @@
 <?php
 
+require 'config.php';
+
 function getIdPhotosAll()
 {
     $stmt = $GLOBALS['db']->query('SELECT id FROM ' . $GLOBALS['schema'] . '.photos');
@@ -32,6 +34,13 @@ function getPhotosWhereNom($nom)
 {
     $stmt = $GLOBALS['db']->prepare('SELECT id FROM ' . $GLOBALS['schema'] . '.photos WHERE nom = ?');
     $stmt->execute([$nom]);
+    $photos = $stmt->fetchall(PDO::FETCH_COLUMN, 'id');
+    return $photos;
+}
+
+function getPhotosInFolder($folder){
+    $stmt = $GLOBALS['db']->prepare('SELECT id FROM ' . $GLOBALS['schema'] . '.photos WHERE id_dossier = ?');
+    $stmt->execute([$folder]);
     $photos = $stmt->fetchall(PDO::FETCH_COLUMN, 'id');
     return $photos;
 }
