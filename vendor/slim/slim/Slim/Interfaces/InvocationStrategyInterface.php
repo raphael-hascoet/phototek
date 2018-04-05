@@ -1,9 +1,9 @@
 <?php
 /**
- * Slim Framework (https://slimframework.com)
+ * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Interfaces;
@@ -26,10 +26,5 @@ interface InvocationStrategyInterface
      *
      * @return ResponseInterface|string The response from the callable.
      */
-    public function __invoke(
-        callable $callable,
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        array $routeArguments
-    );
+    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response, array $routeArguments);
 }

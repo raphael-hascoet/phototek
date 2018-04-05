@@ -1,23 +1,20 @@
 <?php
 /**
- * Slim Framework (https://slimframework.com)
+ * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
 
 use Exception;
-use Slim\Exception\InvalidMethodException;
-use Slim\Http\Response;
-use Throwable;
 use Closure;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Container\ContainerInterface;
+use Interop\Container\ContainerInterface;
 use FastRoute\Dispatcher;
 use Slim\Exception\SlimException;
 use Slim\Exception\MethodNotAllowedException;
@@ -38,13 +35,18 @@ use Slim\Interfaces\RouterInterface;
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
  *
+ * @property-read array $settings App settings
+ * @property-read EnvironmentInterface $environment
+ * @property-read RequestInterface $request
+ * @property-read ResponseInterface $response
+ * @property-read RouterInterface $router
  * @property-read callable $errorHandler
- * @property-read callable $phpErrorHandler
  * @property-read callable $notFoundHandler function($request, $response)
  * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
  */
 class App
 {
+    use CallableResolverAwareTrait;
     use MiddlewareAwareTrait;
 
     /**
@@ -52,7 +54,7 @@ class App
      *
      * @var string
      */
-    const VERSION = '3.9.2';
+    const VERSION = '3.0.0';
 
     /**
      * Container
@@ -68,7 +70,7 @@ class App
     /**
      * Create new application
      *
-     * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of app settings
+     * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
      * @throws InvalidArgumentException when no container is provided that implements ContainerInterface
      */
     public function __construct($container = [])
@@ -97,18 +99,23 @@ class App
      *
      * This method prepends new middleware to the app's middleware stack.
      *
-     * @param  callable|string    $callable The callback routine
+     * @param  mixed    $callable The callback routine
      *
      * @return static
      */
     public function add($callable)
     {
-        return $this->addMiddleware(new DeferredCallable($callable, $this->container));
+        $callable = $this->resolveCallable($callable);
+        if ($callable instanceof Closure) {
+            $callable = $callable->bindTo($this->container);
+        }
+
+        return $this->addMiddleware($callable);
     }
 
     /**
      * Calling a non-existant method on App checks to see if there's an item
-     * in the container that is callable and if so, calls it.
+     * in the container than is callable and if so, calls it.
      *
      * @param  string $method
      * @param  array $args
@@ -122,8 +129,6 @@ class App
                 return call_user_func_array($obj, $args);
             }
         }
-
-        throw new \BadMethodCallException("Method $method is not a valid method");
     }
 
     /********************************************************************************
@@ -134,7 +139,7 @@ class App
      * Add GET route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  mixed  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -147,7 +152,7 @@ class App
      * Add POST route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  mixed  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -160,7 +165,7 @@ class App
      * Add PUT route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  mixed  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -173,7 +178,7 @@ class App
      * Add PATCH route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  mixed  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -186,7 +191,7 @@ class App
      * Add DELETE route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  mixed  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -199,7 +204,7 @@ class App
      * Add OPTIONS route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  mixed  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -212,7 +217,7 @@ class App
      * Add route for any HTTP method
      *
      * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  mixed  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -226,7 +231,7 @@ class App
      *
      * @param  string[] $methods  Numeric array of HTTP method names
      * @param  string   $pattern  The route URI pattern
-     * @param  callable|string    $callable The route callback routine
+     * @param  mixed    $callable The route callback routine
      *
      * @return RouteInterface
      */
@@ -289,28 +294,48 @@ class App
      */
     public function run($silent = false)
     {
+        $request = $this->container->get('request');
         $response = $this->container->get('response');
 
-        try {
-            ob_start();
-            $response = $this->process($this->container->get('request'), $response);
-        } catch (InvalidMethodException $e) {
-            $response = $this->processInvalidMethod($e->getRequest(), $response);
-        } finally {
-            $output = ob_get_clean();
+        // Ensure basePath is set
+        $router = $this->container->get('router');
+        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
+            $router->setBasePath($request->getUri()->getBasePath());
         }
 
-        if (!empty($output) && $response->getBody()->isWritable()) {
-            $outputBuffering = $this->container->get('settings')['outputBuffering'];
-            if ($outputBuffering === 'prepend') {
-                // prepend output buffer content
-                $body = new Http\Body(fopen('php://temp', 'r+'));
-                $body->write($output . $response->getBody());
-                $response = $response->withBody($body);
-            } elseif ($outputBuffering === 'append') {
-                // append output buffer content
-                $response->getBody()->write($output);
+
+        // Dispatch the Router first if the setting for this is on
+        if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
+            // Dispatch router (note: you won't be able to alter routes after this)
+            $request = $this->dispatchRouterAndPrepareRoute($request, $router);
+        }
+
+        // Traverse middleware stack
+        try {
+            $response = $this->callMiddlewareStack($request, $response);
+        } catch (MethodNotAllowedException $e) {
+            if (!$this->container->has('notAllowedHandler')) {
+                throw $e;
             }
+            /** @var callable $notAllowedHandler */
+            $notAllowedHandler = $this->container->get('notAllowedHandler');
+            $response = $notAllowedHandler($e->getRequest(), $e->getResponse(), $e->getAllowedMethods());
+        } catch (NotFoundException $e) {
+            if (!$this->container->has('notFoundHandler')) {
+                throw $e;
+            }
+            /** @var callable $notFoundHandler */
+            $notFoundHandler = $this->container->get('notFoundHandler');
+            $response = $notFoundHandler($e->getRequest(), $e->getResponse());
+        } catch (SlimException $e) {
+            $response = $e->getResponse();
+        } catch (Exception $e) {
+            if (!$this->container->has('errorHandler')) {
+                throw $e;
+            }
+            /** @var callable $errorHandler */
+            $errorHandler = $this->container->get('errorHandler');
+            $response = $errorHandler($request, $response, $e);
         }
 
         $response = $this->finalize($response);
@@ -323,80 +348,7 @@ class App
     }
 
     /**
-     * Pull route info for a request with a bad method to decide whether to
-     * return a not-found error (default) or a bad-method error, then run
-     * the handler for that error, returning the resulting response.
-     *
-     * Used for cases where an incoming request has an unrecognized method,
-     * rather than throwing an exception and not catching it all the way up.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    protected function processInvalidMethod(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $router = $this->container->get('router');
-        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-            $router->setBasePath($request->getUri()->getBasePath());
-        }
-
-        $request = $this->dispatchRouterAndPrepareRoute($request, $router);
-        $routeInfo = $request->getAttribute('routeInfo', [RouterInterface::DISPATCH_STATUS => Dispatcher::NOT_FOUND]);
-
-        if ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::METHOD_NOT_ALLOWED) {
-            return $this->handleException(
-                new MethodNotAllowedException($request, $response, $routeInfo[RouterInterface::ALLOWED_METHODS]),
-                $request,
-                $response
-            );
-        }
-
-        return $this->handleException(new NotFoundException($request, $response), $request, $response);
-    }
-
-    /**
-     * Process a request
-     *
-     * This method traverses the application middleware stack and then returns the
-     * resultant Response object.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     *
-     * @throws Exception
-     * @throws MethodNotAllowedException
-     * @throws NotFoundException
-     */
-    public function process(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        // Ensure basePath is set
-        $router = $this->container->get('router');
-        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-            $router->setBasePath($request->getUri()->getBasePath());
-        }
-
-        // Dispatch the Router first if the setting for this is on
-        if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
-            // Dispatch router (note: you won't be able to alter routes after this)
-            $request = $this->dispatchRouterAndPrepareRoute($request, $router);
-        }
-
-        // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (Exception $e) {
-            $response = $this->handleException($e, $request, $response);
-        } catch (Throwable $e) {
-            $response = $this->handlePhpError($e, $request, $response);
-        }
-
-        return $response;
-    }
-
-    /**
-     * Send the response to the client
+     * Send the response the client
      *
      * @param ResponseInterface $response
      */
@@ -404,16 +356,6 @@ class App
     {
         // Send response
         if (!headers_sent()) {
-            // Headers
-            foreach ($response->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
-                }
-            }
-
-            // Set the status _after_ the headers, because of PHP's "helpful" behavior with location headers.
-            // See https://github.com/slimphp/Slim/issues/1730
-
             // Status
             header(sprintf(
                 'HTTP/%s %s %s',
@@ -421,6 +363,13 @@ class App
                 $response->getStatusCode(),
                 $response->getReasonPhrase()
             ));
+
+            // Headers
+            foreach ($response->getHeaders() as $name => $values) {
+                foreach ($values as $value) {
+                    header(sprintf('%s: %s', $name, $value), false);
+                }
+            }
         }
 
         // Body
@@ -431,31 +380,20 @@ class App
             }
             $settings       = $this->container->get('settings');
             $chunkSize      = $settings['responseChunkSize'];
-
             $contentLength  = $response->getHeaderLine('Content-Length');
             if (!$contentLength) {
                 $contentLength = $body->getSize();
             }
-
-
-            if (isset($contentLength)) {
-                $amountToRead = $contentLength;
-                while ($amountToRead > 0 && !$body->eof()) {
-                    $data = $body->read(min($chunkSize, $amountToRead));
-                    echo $data;
-
-                    $amountToRead -= strlen($data);
-
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
+            $totalChunks    = ceil($contentLength / $chunkSize);
+            $lastChunkSize  = $contentLength % $chunkSize;
+            $currentChunk   = 0;
+            while (!$body->eof() && $currentChunk < $totalChunks) {
+                if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
+                    $chunkSize = $lastChunkSize;
                 }
-            } else {
-                while (!$body->eof()) {
-                    echo $body->read($chunkSize);
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
+                echo $body->read($chunkSize);
+                if (connection_status() != CONNECTION_NORMAL) {
+                    break;
                 }
             }
         }
@@ -528,15 +466,8 @@ class App
      * @param  ResponseInterface $response     The response object (optional)
      * @return ResponseInterface
      */
-    public function subRequest(
-        $method,
-        $path,
-        $query = '',
-        array $headers = [],
-        array $cookies = [],
-        $bodyContent = '',
-        ResponseInterface $response = null
-    ) {
+    public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '', ResponseInterface $response = null)
+    {
         $env = $this->container->get('environment');
         $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Headers($headers);
@@ -597,17 +528,9 @@ class App
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
-        // Add Content-Length header if `addContentLengthHeader` setting is set
-        if (isset($this->container->get('settings')['addContentLengthHeader']) &&
-            $this->container->get('settings')['addContentLengthHeader'] == true) {
-            if (ob_get_length() > 0) {
-                throw new \RuntimeException("Unexpected data in output buffer. " .
-                    "Maybe you have characters before an opening <?php tag?");
-            }
-            $size = $response->getBody()->getSize();
-            if ($size !== null && !$response->hasHeader('Content-Length')) {
-                $response = $response->withHeader('Content-Length', (string) $size);
-            }
+        $size = $response->getBody()->getSize();
+        if ($size !== null && !$response->hasHeader('Content-Length')) {
+            $response = $response->withHeader('Content-Length', (string) $size);
         }
 
         return $response;
@@ -627,70 +550,6 @@ class App
         if (method_exists($response, 'isEmpty')) {
             return $response->isEmpty();
         }
-
         return in_array($response->getStatusCode(), [204, 205, 304]);
-    }
-
-    /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
-     *
-     * @param  Exception $e
-     * @param  ServerRequestInterface $request
-     * @param  ResponseInterface $response
-     *
-     * @return ResponseInterface
-     * @throws Exception if a handler is needed and not found
-     */
-    protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
-    {
-        if ($e instanceof MethodNotAllowedException) {
-            $handler = 'notAllowedHandler';
-            $params = [$e->getRequest(), $e->getResponse(), $e->getAllowedMethods()];
-        } elseif ($e instanceof NotFoundException) {
-            $handler = 'notFoundHandler';
-            $params = [$e->getRequest(), $e->getResponse(), $e];
-        } elseif ($e instanceof SlimException) {
-            // This is a Stop exception and contains the response
-            return $e->getResponse();
-        } else {
-            // Other exception, use $request and $response params
-            $handler = 'errorHandler';
-            $params = [$request, $response, $e];
-        }
-
-        if ($this->container->has($handler)) {
-            $callable = $this->container->get($handler);
-            // Call the registered handler
-            return call_user_func_array($callable, $params);
-        }
-
-        // No handlers found, so just throw the exception
-        throw $e;
-    }
-
-    /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
-     *
-     * @param  Throwable $e
-     * @param  ServerRequestInterface $request
-     * @param  ResponseInterface $response
-     * @return ResponseInterface
-     * @throws Throwable
-     */
-    protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $handler = 'phpErrorHandler';
-        $params = [$request, $response, $e];
-
-        if ($this->container->has($handler)) {
-            $callable = $this->container->get($handler);
-            // Call the registered handler
-            return call_user_func_array($callable, $params);
-        }
-
-        // No handlers found, so just throw the exception
-        throw $e;
     }
 }

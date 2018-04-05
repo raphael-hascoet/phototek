@@ -1,9 +1,9 @@
 <?php
 /**
- * Slim Framework (https://slimframework.com)
+ * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Http;
@@ -91,7 +91,6 @@ class Response extends Message implements ResponseInterface
         416 => 'Requested Range Not Satisfiable',
         417 => 'Expectation Failed',
         418 => 'I\'m a teapot',
-        421 => 'Misdirected Request',
         422 => 'Unprocessable Entity',
         423 => 'Locked',
         424 => 'Failed Dependency',
@@ -99,9 +98,6 @@ class Response extends Message implements ResponseInterface
         428 => 'Precondition Required',
         429 => 'Too Many Requests',
         431 => 'Request Header Fields Too Large',
-        444 => 'Connection Closed Without Response',
-        451 => 'Unavailable For Legal Reasons',
-        499 => 'Client Closed Request',
         //Server Error 5xx
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
@@ -114,15 +110,7 @@ class Response extends Message implements ResponseInterface
         508 => 'Loop Detected',
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
-        599 => 'Network Connect Timeout Error',
     ];
-
-    /**
-     * EOL characters used for HTTP response.
-     *
-     * @var string
-     */
-     const EOL = "\r\n";
 
     /**
      * Create new HTTP response.
@@ -147,6 +135,7 @@ class Response extends Message implements ResponseInterface
     public function __clone()
     {
         $this->headers = clone $this->headers;
+        $this->body = clone $this->body;
     }
 
     /*******************************************************************************
@@ -183,7 +172,7 @@ class Response extends Message implements ResponseInterface
      * @param string $reasonPhrase The reason phrase to use with the
      *     provided status code; if none is provided, implementations MAY
      *     use the defaults as suggested in the HTTP specification.
-     * @return static
+     * @return self
      * @throws \InvalidArgumentException For invalid status code arguments.
      */
     public function withStatus($code, $reasonPhrase = '')
@@ -250,34 +239,6 @@ class Response extends Message implements ResponseInterface
     }
 
     /*******************************************************************************
-     * Headers
-     ******************************************************************************/
-
-    /**
-     * Return an instance with the provided value replacing the specified header.
-     *
-     * If a Location header is set and the status code is 200, then set the status
-     * code to 302 to mimic what PHP does. See https://github.com/slimphp/Slim/issues/1730
-     *
-     * @param string $name Case-insensitive header field name.
-     * @param string|string[] $value Header value(s).
-     * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
-     */
-    public function withHeader($name, $value)
-    {
-        $clone = clone $this;
-        $clone->headers->set($name, $value);
-
-        if ($clone->getStatusCode() === 200 && strtolower($name) === 'location') {
-            $clone = $clone->withStatus(302);
-        }
-
-        return $clone;
-    }
-
-
-    /*******************************************************************************
      * Body
      ******************************************************************************/
 
@@ -289,7 +250,7 @@ class Response extends Message implements ResponseInterface
      * Proxies to the underlying stream and writes the provided data to it.
      *
      * @param string $data
-     * @return $this
+     * @return self
      */
     public function write($data)
     {
@@ -311,22 +272,12 @@ class Response extends Message implements ResponseInterface
      * response to the client.
      *
      * @param  string|UriInterface $url    The redirect destination.
-     * @param  int|null            $status The redirect HTTP status code.
-     * @return static
+     * @param  int                 $status The redirect HTTP status code.
+     * @return self
      */
-    public function withRedirect($url, $status = null)
+    public function withRedirect($url, $status = 302)
     {
-        $responseWithRedirect = $this->withHeader('Location', (string)$url);
-
-        if (is_null($status) && $this->getStatusCode() === 200) {
-            $status = 302;
-        }
-
-        if (!is_null($status)) {
-            return $responseWithRedirect->withStatus($status);
-        }
-
-        return $responseWithRedirect;
+        return $this->withStatus($status)->withHeader('Location', (string)$url);
     }
 
     /**
@@ -340,24 +291,15 @@ class Response extends Message implements ResponseInterface
      * @param  mixed  $data   The data
      * @param  int    $status The HTTP status code.
      * @param  int    $encodingOptions Json encoding options
-     * @throws \RuntimeException
-     * @return static
+     * @return self
      */
-    public function withJson($data, $status = null, $encodingOptions = 0)
+    public function withJson($data, $status = 200, $encodingOptions = 0)
     {
-        $response = $this->withBody(new Body(fopen('php://temp', 'r+')));
-        $response->body->write($json = json_encode($data, $encodingOptions));
+        $body = $this->getBody();
+        $body->rewind();
+        $body->write(json_encode($data, $encodingOptions));
 
-        // Ensure that the json encoding passed successfully
-        if ($json === false) {
-            throw new \RuntimeException(json_last_error_msg(), json_last_error());
-        }
-
-        $responseWithJson = $response->withHeader('Content-Type', 'application/json;charset=utf-8');
-        if (isset($status)) {
-            return $responseWithJson->withStatus($status);
-        }
-        return $responseWithJson;
+        return $this->withStatus($status)->withHeader('Content-Type', 'application/json;charset=utf-8');
     }
 
     /**
@@ -496,11 +438,11 @@ class Response extends Message implements ResponseInterface
             $this->getStatusCode(),
             $this->getReasonPhrase()
         );
-        $output .= Response::EOL;
+        $output .= PHP_EOL;
         foreach ($this->getHeaders() as $name => $values) {
-            $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . Response::EOL;
+            $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . PHP_EOL;
         }
-        $output .= Response::EOL;
+        $output .= PHP_EOL;
         $output .= (string)$this->getBody();
 
         return $output;

@@ -3,20 +3,20 @@
         <div class="hidden-xs hidden-sm col-sm-2 bordure" id="bord-gauche">
             <!-- Liste des articles disponible uniquement pour la VERSION BUREAU -->
             <div>
-                <p>Logo Phototek</p>
-            </div>
-            <hr/>
-            <div>
                 <p><a class="lien_dossiers">Gestion des dossiers</a></p>
                 <p><a href="#">Gestion des albums</a></p>
             </div>
-            <br/>
             <hr/>
             <div>
                 <p>Informations</p>
+                <p>Nom</p>
+                <p class='info' id="info_nom"></p>
                 <p>Taille</p>
+                <p class='info' id="info_taille"></p>
                 <p>Poids</p>
-                <p>Dernière modifications</p>
+                <p class='info' id="info_poids"></p>
+                <p>Dernières modifications</p>
+                <p class='info' id="info_last_modif"></p>
             </div>
         </div>
 
@@ -46,20 +46,22 @@
                 <select name="outils" id="outils" size="4">
                     <option value="contraste">Contraste</option>
                     <option value="saturation">Saturation</option>
-                    <option value="taille">Taille</option>
+                    <option value="luminosite">Luminosité</option>
+                    <option value="teinte">Teinte</option>
                 </select>
-                <br/>
-                <input type="submit" value="Valider">
             </form>
             <hr/>
             <div>
-                <p>Contraste</p>
+                <p id="titreSlider"></p>
                 <form>
                     <div class="slidecontainer">
-                        <input type="range" min="1" max="100" value="50" class="slider" id="contrasteSlider">
+                        <input type="range" min="0" max="10" value="5" class="slider" id="imgSlider">
                     </div>
-                    <input type="text" name="contraste" value="50" class="value" id="contrasteVal">
-                    <input type="submit" value="OK">
+                    <input type="text" value="5" class="value" id="imgVal">
+                    <br /><br /><br />
+                    <button type="button" id="btEnregistrer">Enregistrer</button>
+                    <br /><br />
+                    <button type="button" id="btToutAnnuler">Tout annuler</button>
                 </form>
 
             </div>

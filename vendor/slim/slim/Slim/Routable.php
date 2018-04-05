@@ -1,14 +1,15 @@
 <?php
 /**
- * Slim Framework (https://slimframework.com)
+ * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
 
-use Psr\Container\ContainerInterface;
+use Closure;
+use Interop\Container\ContainerInterface;
 
 /**
  * A routable, middleware-aware object
@@ -84,23 +85,18 @@ abstract class Routable
     /**
      * Prepend middleware to the middleware collection
      *
-     * @param callable|string $callable The callback routine
+     * @param mixed $callable The callback routine
      *
      * @return static
      */
     public function add($callable)
     {
-        $this->middleware[] = new DeferredCallable($callable, $this->container);
-        return $this;
-    }
+        $callable = $this->resolveCallable($callable);
+        if ($callable instanceof Closure) {
+            $callable = $callable->bindTo($this->container);
+        }
 
-    /**
-     * Set the route pattern
-     *
-     * @param string $newPattern
-     */
-    public function setPattern($newPattern)
-    {
-        $this->pattern = $newPattern;
+        $this->middleware[] = $callable;
+        return $this;
     }
 }
