@@ -1,9 +1,9 @@
 <?php
 /**
- * Slim Framework (https://slimframework.com)
+ * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Handlers;
@@ -11,7 +11,6 @@ namespace Slim\Handlers;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
-use UnexpectedValueException;
 
 /**
  * Default Slim application not allowed handler
@@ -19,8 +18,20 @@ use UnexpectedValueException;
  * It outputs a simple message in either JSON, XML or HTML based on the
  * Accept header.
  */
-class NotAllowed extends AbstractHandler
+class NotAllowed
 {
+    /**
+     * Known handled content types
+     *
+     * @var array
+     */
+    protected $knownContentTypes = [
+        'application/json',
+        'application/xml',
+        'text/xml',
+        'text/html',
+    ];
+
     /**
      * Invoke error handler
      *
@@ -29,14 +40,13 @@ class NotAllowed extends AbstractHandler
      * @param  string[]               $methods  Allowed HTTP methods
      *
      * @return ResponseInterface
-     * @throws UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $methods)
     {
         if ($request->getMethod() === 'OPTIONS') {
             $status = 200;
             $contentType = 'text/plain';
-            $output = $this->renderPlainOptionsMessage($methods);
+            $output = $this->renderPlainNotAllowedMessage($methods);
         } else {
             $status = 405;
             $contentType = $this->determineContentType($request);
@@ -53,8 +63,6 @@ class NotAllowed extends AbstractHandler
                 case 'text/html':
                     $output = $this->renderHtmlNotAllowedMessage($methods);
                     break;
-                default:
-                    throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
             }
         }
 
@@ -70,12 +78,30 @@ class NotAllowed extends AbstractHandler
     }
 
     /**
-     * Render PLAIN message for OPTIONS response
+     * Determine which content type we know about is wanted using Accept header
+     *
+     * @param ServerRequestInterface $request
+     * @return string
+     */
+    private function determineContentType(ServerRequestInterface $request)
+    {
+        $acceptHeader = $request->getHeaderLine('Accept');
+        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+
+        if (count($selectedContentTypes)) {
+            return $selectedContentTypes[0];
+        }
+
+        return 'text/html';
+    }
+
+    /**
+     * Render PLAIN not allowed message
      *
      * @param  array                  $methods
      * @return string
      */
-    protected function renderPlainOptionsMessage($methods)
+    protected function renderPlainNotAllowedMessage($methods)
     {
         $allow = implode(', ', $methods);
 

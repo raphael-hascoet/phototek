@@ -4,7 +4,7 @@
 $(document).ready(function () {
     rmTmp();
 
-    affPage("modif.html/24");
+    affPage("modif.html/8");
 
     $('html').on('dragover', function (e) {
         e.preventDefault();
@@ -15,6 +15,8 @@ $(document).ready(function () {
         e.preventDefault();
         e.stopPropagation();
     });
+
+    $.post('php/index.php/imagick');
 
 
     /*$('#bloc_centre').css("height", $('body').height() - $('.pied-de-page').height());
@@ -71,6 +73,15 @@ $(document).ready(function () {
                 var images = [];
 
                 $.post('php/index.php/imagesfolder/' + idPhoto, function (e) {
+
+                    var selectedOptJq = $('#outils option:first-child');
+                    var selectedOpt = selectedOptJq.val();
+
+                    var defaultValsOpts = {"contraste": 5, "saturation": 100, "luminosite": 100, "teinte" : 100};
+                    var valsOpts = Object.assign({}, defaultValsOpts);
+
+                    var maxOpts = {"contraste": 10, "saturation": 500, "luminosite": 200, "teinte": 200};
+
                     var result = JSON.parse(e);
                     var images = result['photos'];
 
@@ -78,79 +89,192 @@ $(document).ready(function () {
                         $('<img src="upload/' + result['folder'] + '/' + idPhoto + '">').appendTo(this);
                     });
 
-                    $('.photo').each(function(index) {
-                        let img = images[index];
-                        $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
+                    var posSelected = images.findIndex(function (e) {
+                        return e['id'] === idPhoto;
                     });
 
                     var selected = '#footer_' + idPhoto;
 
-                    $(selected).parent().addClass('selected_footer');
-                    console.log('#footer_' + idPhoto);
+                    var idSelected = idPhoto;
 
-                    var start = 0;
+                    var start = posSelected;
+
+                    if (start + 5 > images.length) {
+                        if (images.length >= 5) {
+                            start = images.length - 5;
+                        } else {
+                            start = 0;
+                        }
+                    }
+
+
+                    $('.photo').each(function (index) {
+                        let img = images[index + start];
+                        if (img != null) {
+                            $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
+                        }
+                    });
+
+                    update(defaultValsOpts, selectedOpt);
+
+                    $(selected).parent().addClass('selected_footer');
 
                     $('#arrow-right').click(function () {
-                        if(start + 5 < images.length) {
+                        if (start + 5 < images.length) {
                             start++;
                             $('.photo img').remove();
                             $('.photo').each(function (index) {
-                                let img = images[index+start];
+                                let img = images[index + start];
                                 $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
                             });
+                            $('.selected_footer').removeClass('selected_footer');
+                            $(selected).parent().addClass('selected_footer');
+                        }
+                        if (images.length <= 5 && start + 1 < images.length) {
+                            start++;
                             $('.selected_footer').removeClass('selected_footer');
                             $(selected).parent().addClass('selected_footer');
                         }
                     });
 
                     $('#arrow-left').click(function () {
-                        if(start > 0) {
+                        if (start > 0 && images.length > 5) {
                             start--;
                             $('.photo img').remove();
                             $('.photo').each(function (index) {
-                                let img = images[index+start];
+                                let img = images[index + start];
                                 $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this)
                             });
+                            $('.selected_footer').removeClass('selected_footer');
+                            $(selected).parent().addClass('selected_footer');
+                        }
+                        console.log("oui");
+                        if (start > 0 && images.length <= 5) {
+                            start--;
                             $('.selected_footer').removeClass('selected_footer');
                             $(selected).parent().addClass('selected_footer');
                         }
                     });
 
                     $('.photo').click(function (e) {
-                        if(e.target.src != undefined) {
-                            var images = $('#apercu, #original');
-                            images.find('img').remove();
-                            $(' <img src="' + e.target.src + '"> ').prependTo(images);
+                        if (e.target.src !== undefined) {
+                            var imagesCentre = $('#apercu, #original');
+                            imagesCentre.find('img').remove();
+                            $(' <img src="' + e.target.src + '"> ').prependTo(imagesCentre);
                             $('.selected_footer').removeClass('selected_footer');
                             $(e.target).parent().addClass('selected_footer');
                             selected = '#' + e.target.id;
+
+                            valsOpts = Object.assign({}, defaultValsOpts);
+                            update(valsOpts, selectedOpt);
                         }
                     });
+
+                    function update(valOpts, selectedOpt) {
+                        idSelected = selected.split('_')[1];
+                        var photoUpdate = images.find(function (e) {
+                            return e['id'] === idSelected;
+                        });
+                        posSelected = images.findIndex(function (e) {
+                            return e['id'] === idSelected;
+                        });
+                        console.log(photoUpdate);
+                        $('#info_nom').html(photoUpdate['nom']);
+                        $('#info_taille').html(photoUpdate['exif']['COMPUTED']['Width'] + 'x' + photoUpdate['exif']['COMPUTED']['Height'] + 'fpx');
+                        $('#info_poids').html(photoUpdate['exif']['FileSize']);
+                        $('#info_last_modif').html(photoUpdate['exif']['FileDateForm'] + "</br>" + photoUpdate['exif']['FileHourForm']);
+
+                        $('#imgSlider').val(valsOpts[selectedOpt]);
+                        $('#imgVal').val(valsOpts[selectedOpt]);
+
+                        $.post('php/index.php/rmtmpimage');
+                    }
+
+
+                    $('#formoutils').submit(function (e) {
+                        return false;
+                    });
+
+                    $('#outils').change(function (){
+                        selectedOpt = this.value;
+                        $('#titreSlider').html($(this).find('option:selected').text());
+                        $('#imgSlider').attr('max', maxOpts[selectedOpt]);
+                        $('#imgSlider').val(valsOpts[selectedOpt]);
+                        $('#imgVal').val(valsOpts[selectedOpt]);
+                    });
+
+                    $('#imgSlider').on("input", function (e) {
+                        e.preventDefault();
+                        $('#imgVal').val(this.value);
+
+                        updateImg(valsOpts[selectedOpt], this.value, selectedOpt, valsOpts);
+                        valsOpts[selectedOpt] = this.value;
+                    });
+
+                    $('#imgVal').on("keyup", function (e) {
+                        e.preventDefault();
+                        console.log("oui");
+                        if (!isNaN(this.value)) {
+                            var val;
+                            if (+this.value < 0) {
+                                val = 0;
+                            } else if (+this.value >= maxOpts[selectedOpt]) {
+                                val = maxOpts[selectedOpt];
+                            } else {
+                                val = +this.value;
+                            }
+                            updateImg(valsOpts[selectedOpt], val, selectedOpt, valsOpts);
+                            valsOpts[selectedOpt] = val;
+                            $('#imgSlider').val(val);
+                        }
+                    });
+
+                    function updateImg(oldVal, newVal, opt, valsOpts) {
+
+                        valsOpts[opt] = newVal;
+
+                        console.log(valsOpts);
+
+                        var valsOptsRet = Object.assign({}, valsOpts);
+
+                        valsOptsRet["contraste"] = ((5 - valsOpts["contraste"]) * -1);
+
+                        console.log(valsOptsRet);
+
+                        $.post('php/index.php/modif_image/' + idSelected, valsOptsRet, function () {
+                            var apercu = $('#apercu');
+                            console.log('modif');
+                            apercu.find('img').attr('src', "tmp/tmpimage.jpg?" + new Date().getTime());
+                        });
+                    }
+
+                    $('#btEnregistrer').click(function (e) {
+                        e.preventDefault();
+                        $.post('php/index.php/savemodifs/' + idSelected, function (e) {
+                            $('#original').find('img').attr('src', "upload/" + e + "?" + new Date().getTime());
+                            $(selected).attr('src', "upload/" + e + "?" + new Date().getTime());
+
+                            valsOpts = Object.assign({}, defaultValsOpts);
+                            update(valsOpts, selectedOpt);
+                        });
+                    });
+
+                    $('#btToutAnnuler').click(function (e) {
+                        e.preventDefault();
+                        $.post('php/index.php/rmtmpimage', function (e) {
+                            var apercu = $('#apercu');
+
+                            apercu.find('img').attr('src', $('#original').find('img').attr('src') + "?" + new Date().getTime());
+
+                            valsOpts = Object.assign({}, defaultValsOpts);
+                            update(valsOpts, selectedOpt);
+                        })
+                    });
+
                 });
 
                 //var images = ["photo.jpeg", "photo2.jpg", "photo3.jpg", "photo4.jpg", "photo5.jpg", "photo6.jpg", "photo7.jpg", "photo8.jpg"];
 
-                $('#formoutils').submit(function (e) {
-                    return false;
-                });
-
-                $('#contrasteSlider').on("input", function () {
-                    $('#contrasteVal').val(this.value);
-                });
-
-                $('#contrasteVal').on("keyup", function () {
-                    if(!isNaN(this.value)){
-                        var val;
-                        if(+this.value < 0){
-                            val = 0;
-                        } else if(+this.value >= 100){
-                            val = 100;
-                        } else {
-                            val = +this.value;
-                        }
-                        $('#contrasteSlider').val(val);
-                    }
-                });
             }
         });
     }

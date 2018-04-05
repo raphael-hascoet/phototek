@@ -51,4 +51,11 @@ function dossierIsDef($nom){
     $dossier = $stmt->fetchall(PDO::FETCH_COLUMN, 'id');
     return count($dossier) != 0;
 }
+
+function getIdFolder($nom){
+    $stmt = $GLOBALS['db']->prepare('SELECT id FROM ' . $GLOBALS['schema'] . '.dossier WHERE nom = ?');
+    $stmt->execute([$nom]);
+    $dossier = $stmt->fetchall(PDO::FETCH_COLUMN, 'id');
+    return $dossier[0];
+}
 	

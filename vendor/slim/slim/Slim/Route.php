@@ -1,13 +1,14 @@
 <?php
 /**
- * Slim Framework (https://slimframework.com)
+ * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
 
+use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -69,24 +70,17 @@ class Route extends Routable implements RouteInterface
     protected $arguments = [];
 
     /**
-     * The callable payload
-     *
-     * @var callable
-     */
-    protected $callable;
-
-    /**
      * Create new route
      *
-     * @param string|string[]   $methods The route HTTP methods
-     * @param string            $pattern The route pattern
-     * @param callable          $callable The route callable
-     * @param RouteGroup[]      $groups The parent route groups
-     * @param int               $identifier The route identifier
+     * @param string[]     $methods The route HTTP methods
+     * @param string       $pattern The route pattern
+     * @param callable     $callable The route callable
+     * @param int          $identifier The route identifier
+     * @param RouteGroup[] $groups The parent route groups
      */
     public function __construct($methods, $pattern, $callable, $groups = [], $identifier = 0)
     {
-        $this->methods  = is_string($methods) ? [$methods] : $methods;
+        $this->methods  = $methods;
         $this->pattern  = $pattern;
         $this->callable = $callable;
         $this->groups   = $groups;
@@ -124,16 +118,6 @@ class Route extends Routable implements RouteInterface
     public function getCallable()
     {
         return $this->callable;
-    }
-
-    /**
-     * This method enables you to override the Route's callable
-     *
-     * @param string|\Closure $callable
-     */
-    public function setCallable($callable)
-    {
-        $this->callable = $callable;
     }
 
     /**
@@ -262,7 +246,7 @@ class Route extends Routable implements RouteInterface
      * Retrieve a specific route argument
      *
      * @param string $name
-     * @param string|null $default
+     * @param mixed $default
      *
      * @return mixed
      */
@@ -332,7 +316,19 @@ class Route extends Routable implements RouteInterface
         /** @var InvocationStrategyInterface $handler */
         $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
 
-        $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+        // invoke route callable
+        if ($this->outputBuffering === false) {
+            $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+        } else {
+            try {
+                ob_start();
+                $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+                $output = ob_get_clean();
+            } catch (Exception $e) {
+                ob_end_clean();
+                throw $e;
+            }
+        }
 
         if ($newResponse instanceof ResponseInterface) {
             // if route callback returns a ResponseInterface, then use it
@@ -341,6 +337,18 @@ class Route extends Routable implements RouteInterface
             // if route callback returns a string, then append it to the response
             if ($response->getBody()->isWritable()) {
                 $response->getBody()->write($newResponse);
+            }
+        }
+
+        if (!empty($output) && $response->getBody()->isWritable()) {
+            if ($this->outputBuffering === 'prepend') {
+                // prepend output buffer content
+                $body = new Http\Body(fopen('php://temp', 'r+'));
+                $body->write($output . $response->getBody());
+                $response = $response->withBody($body);
+            } elseif ($this->outputBuffering === 'append') {
+                // append output buffer content
+                $response->getBody()->write($output);
             }
         }
 

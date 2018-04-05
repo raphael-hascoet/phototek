@@ -9,6 +9,7 @@ $tmp = scandir('../tmp');
 
 $folder = $args['folder'];
 
+
 if (!dossierIsDef($folder)) {
     if(addDossier(array("nom" => $folder))) {
         $folderId = $db->lastInsertId();
@@ -16,9 +17,11 @@ if (!dossierIsDef($folder)) {
         echo "Création du dossier " . $folder . ", id ". $folderId . "\n";
     } else {
         echo "Erreur sur la création de dossier";
-        echo print_r($db->errorInfo());
+        print_r($db->errorInfo());
         exit;
     }
+} else {
+    $folderId = getIdFolder($folder);
 }
 
 foreach ($tmp as $img) {
@@ -30,7 +33,7 @@ foreach ($tmp as $img) {
             echo "Ajout de la photo " . $img . ", id " . $db->lastInsertId() . ' dans le dossier ' . $folderId . "\n";
         } else {
             echo "Erreur sur l'ajout de photos depuis tmp";
-            echo print_r($db->errorInfo());
+            print_r($db->errorInfo());
         }
     }
 }

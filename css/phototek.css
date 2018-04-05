@@ -96,7 +96,7 @@ header > div > p {
 
 .bordure {
     position: sticky;
-    margin-top: 100px;
+    margin-top: 80px;
 }
 
 /* Texte de la bordure */
@@ -297,4 +297,12 @@ footer {
 
 .selected_footer {
     background-color: #888;
+}
+
+.info {
+    font-weight: bold;
+}
+
+hr {
+    margin: 10px 0;
 }
