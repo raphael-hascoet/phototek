@@ -55,6 +55,12 @@
 		$all.append(getExifPhoto($GLOBALS['db'], $Id));
 		return $all;
 	 }
+
+	 function getNomFolder($id){
+         $stmt = $GLOBALS['db']->prepare('SELECT nom FROM ' . $GLOBALS['schema'] . '.dossier WHERE id = ?');
+         $stmt->execute([$id]);
+         return $stmt->fetchAll(PDO::FETCH_COLUMN, 'id');
+	 }
 	
 	
 ?>

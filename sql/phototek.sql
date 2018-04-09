@@ -19,7 +19,7 @@ create table phototek.dossier (
 
 create table phototek.photos (
         id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        nom varchar(50) not null,
+        nom varchar(100) not null,
         mime varchar(50) not null,
 	id_dossier int not null,
 	foreign key (id_dossier) references phototek.dossier(id)

@@ -2,9 +2,9 @@
 
 
 $(document).ready(function () {
-    rmTmp();
+    rmTmp();;
 
-    affPage("modif.html/8");
+    affPage("modif.html/23");
 
     $('html').on('dragover', function (e) {
         e.preventDefault();
@@ -93,6 +93,9 @@ $(document).ready(function () {
                         return e['id'] === idPhoto;
                     });
 
+                    $('#dossierPhoto').html(result['folderName'] + ' > ');
+                    $('#titrePhoto').html(images[posSelected]['nom']);
+
                     var selected = '#footer_' + idPhoto;
 
                     var idSelected = idPhoto;
@@ -172,12 +175,16 @@ $(document).ready(function () {
 
                     function update(valOpts, selectedOpt) {
                         idSelected = selected.split('_')[1];
+
                         var photoUpdate = images.find(function (e) {
                             return e['id'] === idSelected;
                         });
                         posSelected = images.findIndex(function (e) {
                             return e['id'] === idSelected;
                         });
+
+                        $('#titrePhoto').html(images[posSelected]['nom']);
+
                         console.log(photoUpdate);
                         $('#info_nom').html(photoUpdate['nom']);
                         $('#info_taille').html(photoUpdate['exif']['COMPUTED']['Width'] + 'x' + photoUpdate['exif']['COMPUTED']['Height'] + 'fpx');
@@ -326,6 +333,8 @@ $(document).ready(function () {
     }
 
     function uploadTmp(formdata) {
+        console.log(formdata.get(formdata.keys().next()['value']));
+
         $.ajax({
             url: 'php/index.php/uploadtmp',
             type: 'post',

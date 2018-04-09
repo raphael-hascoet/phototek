@@ -6,26 +6,30 @@ $photoId = $args['id'];
 
 $imagesNames = [];
 
-
 $photo = getInfoPhoto($photoId);
 
 $idImages = getPhotosInFolder($photo['id_dossier']);
 
 $urlImages['folder'] = $photo['id_dossier'];
 
+$urlImages['folderName'] = getNomFolder($photo['id_dossier']);
+
 foreach ($idImages as $idImage){
     $infoPhoto = getInfoPhoto($idImage);
     @$exif = exif_read_data('../upload/' . $urlImages['folder'] . '/' . $infoPhoto['id'] . '.' . $infoPhoto['mime'], 'COMPUTED');
     //$exif['file'] = exif_read_data('../upload/' . $urlImages['folder'] . '/' . $infoPhoto['id'] . '.' . $infoPhoto['mime'], 'FILE');
     $exif['FileSize'] = formatSizeUnits($exif['FileSize']);
-    $exif['FileDateForm'] = date('d/m/Y', $exif['FileDateTime']);
-    $exif['FileHourForm'] = date('G:i', $exif['FileDateTime']);
+    //print_r($exif);
+
+    //$exif['FileDateForm'] = date('d/m/Y', $exif['FileDateTime']);
+    //$exif['FileHourForm'] = date('G:i', $exif['FileDateTime']);
     $newPhoto = $infoPhoto;
     $newPhoto['exif'] = $exif;
     $urlImages['photos'][] = $newPhoto;
 }
 
-copy('../upload/' . $urlImages['folder'] . '/' . $infoPhoto['id'] . '.' . $infoPhoto['mime'], '../tmp/tmpimage.jpg');
+
+copy('../upload/' . $urlImages['folder'] . '/' . $photo['id'] . '.' . $photo['mime'], '../tmp/tmpimage.jpg');
 
 echo json_encode($urlImages);
 
