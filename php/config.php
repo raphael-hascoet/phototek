@@ -1,5 +1,5 @@
 <?php
-$dbname = "dbtest";
+$dbname = "phototek";
 $host = "localhost";
 
 $user = "root";

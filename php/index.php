@@ -37,6 +37,14 @@ $app->post('/imagick', function (Request $request, Response $response, array $ar
     include 'imagick.php';
 });
 
+$app->get('/dossiers', function (Request $request, Response $response, array $args) {
+    include 'getDossiers.php';
+});
+
+$app->get('/images/{id}', function (Request $request, Response $response, array $args) {
+    include 'imagesFromDoss.php';
+});
+
 $app->post('/modif_image/{id}', function (Request $request, Response $response, array $args) {
     include 'modif_image.php';
 });

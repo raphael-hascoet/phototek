@@ -1,10 +1,10 @@
 /* Javascript permettant un défilement avec une durée */
-
+var selectedItems = [];
 
 $(document).ready(function () {
     rmTmp();
 
-    affPage("modif.html/8");
+    affPage("dossiers.html");
 
     $('html').on('dragover', function (e) {
         e.preventDefault();
@@ -39,6 +39,11 @@ $(document).ready(function () {
         }
     }
 
+
+    function fermerLoader() {
+        console.log("qds");
+        $(".loader").remove();
+    }
     function affPage(url) {
         $('#main').load("html/" + url.split('/')[0], function () {
 
@@ -48,6 +53,38 @@ $(document).ready(function () {
             });
 
             if (url === "dossiers.html") {
+
+                $.ajax({
+                    url: 'php/index.php/dossiers',
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (response) {
+                        fermerLoader();
+                        var tabDossier = response;
+                        tabDossier.forEach(function(e) {
+                            $('#dossier').append(" <figure class='dossiers' id=doss_"+e['id']+"><div class='img_doss'><img src='images/index.png'></div><figcaption>"+e['nom']+"</figcaption></figure>");
+
+
+                        });
+
+                        $('.dossiers').click(function() {
+                            var dossier = $(this);
+                            var doss_id = dossier.attr('id').split("_");
+                            dossier.toggleClass('active');
+                            selectedItems.push(doss_id[1]);
+                        })
+                        $('.dossiers').dblclick(function () {
+                            var dossier = $(this);
+                            var doss_id = dossier.attr('id').split("_");
+
+                            affPage("imagesDoss.html/"+doss_id[1]);
+                        })
+                    },
+
+                    error: function (context, text, error) {
+                        alert("Failure\n" + context.responseText + "\n" + text + "\n" + error);
+                    }
+                });
 
                 $('#ajoutPhoto').click(function () {
                     affCanvas("ajoute.html");
@@ -66,6 +103,41 @@ $(document).ready(function () {
                     $(this).css("background-color", "#ffb7b7");
                 });
             }
+            if(url.split('/')[0] === "imagesDoss.html") {
+                var idDoss = url.split('/')[1];
+
+                $.ajax({
+                    url: 'php/index.php/images/'+idDoss,
+
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (response) {
+                        fermerLoader();
+                        var tabImages = response;
+                        $('#dossier').append("<figure class='image' id=return><div class='img_doss'><img src='images/index.png'></div><figcaption>../</figcaption></figure>");
+                        tabImages.forEach(function(e) {
+                            $('#dossier').append("<figure class='image' id=img_"+e['id']+"><div class='img_doss'><img src='upload/"+idDoss+"/"+e['id']+"."+e['mime']+"'></div><figcaption>"+e['nom']+"</figcaption></figure>");
+                        });
+                        $('.image').dblclick(function () {
+                            var image = $(this);
+
+                            id = image.attr('id');
+                            if(id === "return") {
+                                affPage("dossiers.html");
+                            }
+                            else {
+
+                                affPage("modif.html/"+id.split("_")[1]);
+                            }
+                        })
+                    },
+
+                    error: function (context, text, error) {
+                        console.log("Failure\n" + context.responseText + "\n" + text + "\n" + error);
+                    }
+                });
+            }
+
             if (url.split('/')[0] === "modif.html") {
                 var idPhoto = url.split('/')[1];
 
@@ -86,7 +158,7 @@ $(document).ready(function () {
                     var images = result['photos'];
 
                     $('#original, #apercu').each(function () {
-                        $('<img src="upload/' + result['folder'] + '/' + idPhoto + '">').appendTo(this);
+                        $('<img src="upload/' + result['folder'] + '/' + idPhoto + '.jpg">').appendTo(this);
                     });
 
                     var posSelected = images.findIndex(function (e) {
@@ -109,7 +181,7 @@ $(document).ready(function () {
 
 
                     $('.photo').each(function (index) {
-                        let img = images[index + start];
+                        var img = images[index + start];
                         if (img != null) {
                             $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
                         }
@@ -124,7 +196,7 @@ $(document).ready(function () {
                             start++;
                             $('.photo img').remove();
                             $('.photo').each(function (index) {
-                                let img = images[index + start];
+                                var img = images[index + start];
                                 $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this);
                             });
                             $('.selected_footer').removeClass('selected_footer');
@@ -142,7 +214,7 @@ $(document).ready(function () {
                             start--;
                             $('.photo img').remove();
                             $('.photo').each(function (index) {
-                                let img = images[index + start];
+                                var img = images[index + start];
                                 $('<img src="upload/' + result['folder'] + '/' + img['id'] + '.' + img['mime'] + '" id="footer_' + img['id'] + '">').appendTo(this)
                             });
                             $('.selected_footer').removeClass('selected_footer');
@@ -282,6 +354,10 @@ $(document).ready(function () {
     function affCanvas(url) {
         toggleAff();
         $('.canvas_container').load("canvas/" + url, function () {
+            if(url === "supprimer.html") {
+                console.log(selectedItems);
+            }
+
             if (url === "ajoute.html") {
 
                 $('.upload-area').on('dragenter', function (e) {
@@ -351,6 +427,7 @@ $(document).ready(function () {
         $.post('php/index.php/upload/' + folder, function (e) {
             console.log(e);
             toggleAff();
+            affPage("dossiers.html");
         });
     }
 
@@ -365,6 +442,8 @@ $(document).ready(function () {
         }
         table.last().append("<td> <figure> <img src='tmp/" + img.name + "'> <figcaption>" + img.name + "</figcaption> </figure> </td>");
     }
+
+
 
 });
 
