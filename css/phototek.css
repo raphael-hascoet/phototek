@@ -146,6 +146,10 @@ header > div > p {
 .dossiers.active {
     background-color: #338FFF;
 }
+
+.image.active {
+    background-color: #338FFF;
+}
 /** Colonne de droite **/
 
 #col_droite img {
@@ -153,6 +157,21 @@ header > div > p {
     background-color: black;
     height: auto;
     align-content: space-between;
+}
+
+#tag > li {
+    background-color: #00A5E322;
+    border-radius: 15%;
+    width: auto;
+    display: inline-block;
+    padding: 0.5em;
+    margin: 0.5em;
+}
+#tag > li > span {
+    color: red;
+    float: right;
+    margin: 0 5px;
+    cursor: pointer;
 }
 
 /** Pied de page **/

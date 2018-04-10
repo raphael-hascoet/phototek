@@ -9,30 +9,30 @@
 	}
 	
 	function getLabelTag($Id){
-		$label = [];
-		$stmt = $GLOBALS['db']->query('SELECT label FROM ' . $GLOBALS['schema'] . '.tags WHERE id = ?');
+		$tag = [];
+		$stmt = $GLOBALS['db']->prepare('SELECT label FROM ' . $GLOBALS['schema'] . '.tags WHERE id = ?');
 		$stmt->execute([$Id]);
-		foreach($stmt as $donnee){
-			$label.append($donnee);
-		}
-		return $label;
+        $res = $stmt->fetch();
+        $tag['label'] = $res['label'];
+        $tag['id'] =$Id;
+		return $tag;
 	}
 	
 	function getTagsPhoto($Id){
-		$Tag = [];
-		$stmt = $GLOBALS['db']->query('SELECT id_tag FROM ' . $GLOBALS['schema'] . '.photos_tags WHERE id_photo = ?');
+		$tag = [];
+		$stmt = $GLOBALS['db']->prepare('SELECT id_tag FROM ' . $GLOBALS['schema'] . '.photos_tags WHERE id_photo = ?');
 		$stmt->execute([$Id]);
-		$Tag.getLabel($GLOBALS['db'], $stmt);
-		return $Tag;
+		$res = $stmt->fetchAll();
+		foreach ($res as $row) {
+		    $tag[] = getLabelTag($row['id_tag']);
+        }
+        return $tag;
 	}
 	
 	function getExifPhoto($Id){
-		$exif = [];
-		$stmt = $GLOBALS['db']->prepare('SELECT taille, date_dern, date, resolution, qualite, format, auteur, appareil, coordonnee FROM ' . $GLOBALS['schema'] . '.exif WHERE id_photo = ?');
-		$stmt->execute([$Id]);
-		foreach($stmt as $donnee){
-			$exif.append($donnee);
-		}
+        $idDoss = getInfoPhoto($Id)['id_dossier'];
+        $mime = getInfoPhoto($Id)['mime'];
+        $exif = exif_read_data("../upload/$idDoss/$Id.$mime","COMPUTED");
 		return $exif;
 	}
 	

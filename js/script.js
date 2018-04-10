@@ -1,5 +1,5 @@
 /* Javascript permettant un défilement avec une durée */
-var selectedItems = [];
+var selectedItem;
 
 $(document).ready(function () {
     rmTmp();
@@ -41,7 +41,7 @@ $(document).ready(function () {
 
 
     function fermerLoader() {
-        console.log("qds");
+
         $(".loader").remove();
     }
     function affPage(url) {
@@ -59,6 +59,7 @@ $(document).ready(function () {
                     type: 'get',
                     dataType: 'json',
                     success: function (response) {
+                        console.log("marche !");
                         fermerLoader();
                         var tabDossier = response;
                         tabDossier.forEach(function(e) {
@@ -68,15 +69,23 @@ $(document).ready(function () {
                         });
 
                         $('.dossiers').click(function() {
+                            var dossiers = $('.dossiers');
                             var dossier = $(this);
                             var doss_id = dossier.attr('id').split("_");
-                            dossier.toggleClass('active');
-                            selectedItems.push(doss_id[1]);
-                        })
+                            dossiers.removeClass('active');
+                            if(selectedItem === doss_id) {
+                                dossier.removeClass('active');
+                            }
+                            else {
+                                dossier.addClass('active');
+                                selectedItem = doss_id;
+                            }
+
+                        });
                         $('.dossiers').dblclick(function () {
                             var dossier = $(this);
                             var doss_id = dossier.attr('id').split("_");
-
+                            console.log("pt");
                             affPage("imagesDoss.html/"+doss_id[1]);
                         })
                     },
@@ -103,6 +112,7 @@ $(document).ready(function () {
                     $(this).css("background-color", "#ffb7b7");
                 });
             }
+
             if(url.split('/')[0] === "imagesDoss.html") {
                 var idDoss = url.split('/')[1];
 
@@ -129,7 +139,60 @@ $(document).ready(function () {
 
                                 affPage("modif.html/"+id.split("_")[1]);
                             }
-                        })
+                        }).click(function (e) {
+                            $(this).toggleClass("active");
+
+                            var images = $('.image');
+                            var image = $(this);
+                            var textTag = $('#tag_input');
+                            var buttonTag = $('#tag_button');
+                            buttonTag.prop('disabled',false);
+                            var img_id = image.attr('id').split("_")[1];
+                            images.removeClass('active');
+                            if (selectedItem === img_id) {
+                                image.removeClass('active');
+
+                            }
+                            else {
+                                image.addClass('active');
+                                selectedItem = img_id;
+                            }
+
+                            $.ajax({
+                                url: 'php/index.php/images/infos/' + img_id,
+                                type: 'get',
+                                dataType: 'json',
+                                success: function (response) {
+                                    console.log(response);
+                                    $('#info_nom').html(response['nom']);
+                                    $('#info_taille').html(response['width']+"x"+response['height']);
+                                    $('#info_poids').html(response['taille']);
+                                    $('#info_last_modif').html(response['date']);
+                                    $('#tag').html("");
+                                    response['tags'].forEach(function(e) {
+                                        $('#tag').append("<li>"+e['label']+"<span id='tag_"+e['id']+"' class='deleteTag'>X</span></li>")
+                                    });
+
+                                    $('.deleteTag').click(function() {
+                                        var idTag = $(this).attr('id').split('_')[1];
+                                        console.log(idTag);
+
+                                        $.ajax({
+                                            url: 'php/index.php/tag/delete/'+3,
+
+                                            success: function (response) {
+                                                console.log(response);
+                                            }
+                                        });
+                                    })
+
+                                },
+
+                                error: function (context, text, error) {
+                                    console.log("Failure\n" + context.responseText + "\n" + text + "\n" + error);
+                                }
+                            });
+                        });
                     },
 
                     error: function (context, text, error) {
@@ -354,8 +417,17 @@ $(document).ready(function () {
     function affCanvas(url) {
         toggleAff();
         $('.canvas_container').load("canvas/" + url, function () {
+
             if(url === "supprimer.html") {
-                console.log(selectedItems);
+                if(selectedItem != null) {
+
+
+                }
+                else {
+                    alert("Selectionnez un dossier !");
+                    toggleAff();
+                }
+                console.log(selectedItem);
             }
 
             if (url === "ajoute.html") {

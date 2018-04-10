@@ -45,8 +45,18 @@ $app->get('/images/{id}', function (Request $request, Response $response, array 
     include 'imagesFromDoss.php';
 });
 
+$app->get('/images/infos/{id}', function (Request $request, Response $response, array $args) {
+    include 'imageInfo.php';
+});
 $app->post('/modif_image/{id}', function (Request $request, Response $response, array $args) {
     include 'modif_image.php';
+});
+
+$app->get('/tag/delete/{id}', function (Request $request, Response $response, array $args) {
+    include 'deleteTag.php';
+});
+$app->get('/tag/add/{id}', function (Request $request, Response $response, array $args) {
+    include 'addTag.php';
 });
 
 $app->post('/rmtmpimage', function (Request $request, Response $response, array $args) {
