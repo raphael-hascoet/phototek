@@ -1,0 +1,61 @@
+<div class="container-fluid text-center">
+    <div class="row content">
+        <div class="hidden-xs hidden-sm col-sm-2 bordure" id="col_gauche">
+            <!-- Barre de gauche disponible uniquement pour la VERSION BUREAU -->
+            <hr/>
+            <div>
+                <p><a class="lien_dossiers">Gestion des dossiers</a></p>
+                <p><a class="lien_albums">Gestion des albums</a></p>
+            </div>
+            <hr/>
+            <div>
+                <p>Informations</p>
+                <p>Taille</p>
+                <p>Poids</p>
+                <p>Dernière modifications</p>
+            </div>
+        </div>
+
+        <div class="col-sm-8 text-left" id="bloc_centre"> <!-- Bloc principal de la page -->
+            <section>
+                <h2>Mes dossiers</h2>
+                <hr/>
+                <article id="dossier">
+                    <div class="loader"></div>
+                </article>
+                <br/>
+            </section>
+        </div>
+
+
+        <div class="hidden-xs hidden-sm col-sm-2 bordure" id="col_droite">
+            <!-- Barre de droite disponible uniquement pour la VERSION BUREAU -->
+            <div id="ajoutPhoto">
+                <img class="img" src="images/Boutons/ajt.jpg">
+                <p>Ajouter Dossier</p>
+            </div>
+            <hr/>
+            <div>
+                <img src="images/Boutons/mdf.png">
+                <p>Modifier Dossier</p>
+
+            </div>
+            <hr/>
+            <div id="supprimerPhoto">
+                <img src="images/Boutons/supr.jpeg">
+                <p>Supprimer dossier</p>
+            </div>
+            <hr/>
+        </div>
+    </div>
+
+        <!-- Version BUREAU -->
+    <footer class="hidden-xs pied-de-page"> <!-- Pied de page pour toutes les versions SAUF MOBILE -->
+
+    </footer>
+
+        <!-- Version MOBILE -->
+    <footer class="hidden-lg pied-de-page"> <!-- Pied de page pour version MOBILE -->
+
+    </footer>
+</div>

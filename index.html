@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Phototek</title>
+    <meta charset="utf-8">
+    <meta name="author" content="P201701"/>
+    <meta name="description" content="Les photos subliment votre vie.."/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="images/png" href="images/icone.png"/> <!-- Favicon -->
+    <script src="lib/jquery.js"></script>
+    <script src="lib/bootstrap.js"></script>
+    <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.css"/>
+    <!-- Inclusion de la feuille de style du framework Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="css/phototek.css"/> <!-- Inclusion de la feuille de style -->
+    <link rel="stylesheet" type="text/css" href="css/canvas.css"/>
+</head>
+
+<body id="haut_de_page">
+
+<header class="container hidden-xs"> <!-- Menu disponible pour toutes les versions SAUF MOBILE -->
+    <a class="col-lg-2 icone" href="index.html"><img src="images/icone.png" title="Logo phototek" alt="phototek"
+                                                     width=60px/></a>
+
+    <div class="col-lg-9">
+        <p>Bienvenue sur phototek</p>
+    </div>
+
+    <a data-toggle="dropdown" class="col-lg-1">
+        <img id="menu-mobile" src="images/mobile-menu.png" alt="Menu" title="Menu" width="50" height="60"/>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="lien_dossiers">Gestion des dossiers</a></li>
+        <li class="divider"></li>
+        <li><a href="html/">Gestion des albums</a></li>
+        <li class="divider"></li>
+        <li><a href="html/">Mon compte</a></li>
+        <li class="divider"></li>
+        <li><a href="html/">Déconnexion</a></li>
+    </ul>
+</header>
+
+<nav class="container visible-xs"> <!-- Menu disponible uniquement pour VERSION MOBILE -->
+    <div>
+        <a href="index.html"><img class="col-xs-3" src="images/icone.png" title="Logo phototek" alt="Logo phototek"
+                                  width=60px/></a>
+    </div>
+
+    <div class="col-xs-offset-1 col-xs-6">
+        <p>Bienvenue sur phototek</p>
+    </div>
+
+    <a data-toggle="dropdown" class="col-xs-2"> <!-- Menu déroulant -->
+        <img id="menu-mobile" src="images/mobile-menu.png" alt="Menu" title="Menu" width="50" height="60"/>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="lien_dossiers">Gestion des dossiers</a></li>
+        <li class="divider"></li>
+        <li><a href="html/">Gestion des albums</a></li>
+        <li class="divider"></li>
+        <li><a href="html/">Mon compte</a></li>
+        <li class="divider"></li>
+        <li><a href="html/">Déconnexion</a></li>
+    </ul>
+</nav>
+<div id="main">
+
+</div>
+<div class="canvas">
+    <div class="canvas_container">
+    </div>
+</div>
+
+<!-- Placement du javascript ici pour ne pas bloquer le chargement de la page -->
+<script type="text/javascript" src="js/script.js"></script>
+<!-- Script permettant un défilement animé pour remonter en haut de page -->
+</body>
+</html>
