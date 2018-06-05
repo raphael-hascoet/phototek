@@ -1,7 +1,6 @@
 .htaccess
 phpmyadmin/
 .idea
-php/config.php
 
 upload/*
 !upload/.gitkeep
